@@ -2,13 +2,15 @@
   "main": "server.ts",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "start": "node server.js"
+    "dev": "nodemon --watch api server.ts"
   },
   "dependencies": {
+    "@types/node": "^18.15.0",
     "fastify": "^4.0.0",
     "fastify-cli": "^5.9.0",
     "fastify-plugin": "^4.0.0",
-    "typescript": "^5.3.3",
-    "@types/node": "^18.15.0"
+    "nodemon": "^3.0.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   }
 }
