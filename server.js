@@ -13,10 +13,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // 然後要移除type: "module"，不然會報錯
 // 並且tsconfig.json中target要改成es2017
 const fastify_1 = __importDefault(require("fastify"));
-const server = (0, fastify_1.default)();
-server.get('/ping', async (request, reply) => {
-    return 'pong\n';
+const hello_1 = __importDefault(require("./api/hello"));
+const fastifyOptions = {
+    logger: true,
+    // disableRequestLogging: false,
+};
+const server = (0, fastify_1.default)(fastifyOptions);
+server.get("/ping", async (request, reply) => {
+    return "pong\n";
 });
+server.register(hello_1.default, { prefix: "/hello" });
 server.listen({ port: 8080 }, (err, address) => {
     if (err) {
         console.error(err);
