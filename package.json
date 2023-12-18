@@ -2,13 +2,10 @@
   "name": "myproject",
   "version": "1.0.0",
   "description": "This project was bootstrapped with Fastify-CLI.",
-  "main": "server.ts",
-  "directories": {
-    "test": "test"
-  },
+  "main": "server.ts",  
   "scripts": {
     "dev": "nodemon --watch server.ts",
-    "build": "tsc -p tsconfig.json"
+    "build": "yarn tsc -p tsconfig.json"
   },
   "keywords": [],
   "author": "",
