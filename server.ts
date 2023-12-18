@@ -1,4 +1,8 @@
-import fastify, { FastifyServerOptions } from "fastify";
+import fastify, {
+  FastifyServerOptions,
+  FastifyRequest,
+  FastifyReply,
+} from "fastify";
 import cookie from "@fastify/cookie";
 import { FastifyCookieOptions } from "@fastify/cookie";
 import spotify from "./api/spotfiy";
@@ -25,10 +29,15 @@ server.register(spotifyCallback, { prefix: "/api/spotify-callback" });
 //   return "Hello World";
 // });
 
-server.listen({ port: 3000 }, (err, address) => {
-  if (err) {
-    console.error(err);
-    process.exit(1);
-  }
-  console.log(`Server listening at ${address}`);
-});
+export default async (req: FastifyRequest, res: FastifyReply) => {
+  await server.ready();
+  server.server.emit("request", req, res);
+};
+
+// server.listen({ port: 3000 }, (err, address) => {
+//   if (err) {
+//     console.error(err);
+//     process.exit(1);
+//   }
+//   console.log(`Server listening at ${address}`);
+// });
