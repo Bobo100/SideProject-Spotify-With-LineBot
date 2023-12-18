@@ -23,9 +23,9 @@ server.register(cookie, {
   parseOptions: {}, // options for parsing cookies
 } as FastifyCookieOptions);
 
-server.register(spotify, { prefix: "/" });
+// server.register(spotify, { prefix: "/" });
 
-server.register(spotifyCallback, { prefix: "/api/spotify-callback" });
+// server.register(spotifyCallback, { prefix: "/api/spotify-callback" });
 
 server.get("/", async (request, reply) => {
   return "Hello World";
