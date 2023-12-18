@@ -7,8 +7,8 @@ import fastify, {
 } from "fastify";
 import cookie from "@fastify/cookie";
 import { FastifyCookieOptions } from "@fastify/cookie";
-import spotify from "./api/spotfiy";
-import spotifyCallback from "./api/spotify-callback";
+import spotify from "../api/spotfiy";
+import spotifyCallback from "../api/spotify-callback";
 
 const fastifyOptions: FastifyServerOptions = {
   logger: true,
@@ -27,9 +27,9 @@ server.register(spotify, { prefix: "/" });
 
 server.register(spotifyCallback, { prefix: "/api/spotify-callback" });
 
-// server.get("/", async (request, reply) => {
-//   return "Hello World";
-// });
+server.get("/", async (request, reply) => {
+  return "Hello World";
+});
 
 export default async (req: FastifyRequest, res: FastifyReply) => {
   await server.ready();
