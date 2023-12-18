@@ -1,15 +1,17 @@
-import { FastifyInstance } from "fastify";
+import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import crypto from "crypto";
-import "dotenv/config";
+import dotenv from "dotenv";
+dotenv.config({ path: `.env.local`, override: true });
+
+type MyRequest = FastifyRequest<{
+  Querystring: {
+    keyWord: string;
+  };
+}>;
 
 // https://www.youtube.com/watch?v=btGtOue1oDA
 const spotify = (fastify: FastifyInstance, opts: any, done: any) => {
-  // 路徑會等於/spotify/
-  fastify.get("/", async (request, reply) => {
-    return `${process.env.SPOTIFY_CLIENT_ID}`;
-  });
-
-  fastify.get("/register", async (request, reply) => {
+  fastify.get("/login", async (request, reply) => {
     const clientId = process.env.SPOTIFY_CLIENT_ID;
     const params = new URLSearchParams();
     params.append("client_id", clientId!);
@@ -69,6 +71,34 @@ const spotify = (fastify: FastifyInstance, opts: any, done: any) => {
     } else {
       return `Fail Refresh`;
     }
+  });
+
+  // search
+  // https://developer.spotify.com/documentation/web-api/reference/search
+  fastify.get("/search", async (request: MyRequest, reply: FastifyReply) => {
+    const keyWord = request.query.keyWord;
+    const access_token = request.cookies.access_token;
+    const Params = new URLSearchParams();
+    Params.append("q", keyWord!);
+    // 可帶複數的type，但我想先不用
+    Params.append("type", "track");
+    // 限定台灣
+    Params.append("market", "TW");
+    // 一次顯示幾筆
+    Params.append("limit", "10");
+    // offset用來做分頁
+    Params.append("offset", "0");
+    const spotifyResponse = await fetch(
+      `https://api.spotify.com/v1/search?${Params.toString()}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      }
+    );
+    const data = await spotifyResponse.json();
+    return data;
   });
 
   done();

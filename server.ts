@@ -17,13 +17,13 @@ server.register(cookie, {
   parseOptions: {}, // options for parsing cookies
 } as FastifyCookieOptions);
 
-server.register(spotify, { prefix: "/spotify" });
+server.register(spotify, { prefix: "/" });
 
 server.register(spotifyCallback, { prefix: "/api/spotify-callback" });
 
-server.get("/", async (request, reply) => {
-  return "Hello World";
-});
+// server.get("/", async (request, reply) => {
+//   return "Hello World";
+// });
 
 server.listen({ port: 3000 }, (err, address) => {
   if (err) {
