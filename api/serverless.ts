@@ -1,20 +1,19 @@
-import fastify, {
-  FastifyServerOptions,
-  FastifyRequest,
-  FastifyReply,
-} from "fastify";
+// Read the .env file.
+import * as dotenv from "dotenv";
+dotenv.config();
 
-const fastifyOptions: FastifyServerOptions = {
+// Require the framework
+import Fastify from "fastify";
+
+// Instantiate Fastify with some config
+const app = Fastify({
   logger: true,
-};
-
-const server = fastify(fastifyOptions);
-
-server.register(import("../functions/index"), {
-  prefix: "/",
 });
 
-export default async (req: FastifyRequest, res: FastifyReply) => {
-  await server.ready();
-  server.server.emit("request", req, res);
-};
+// Register your application as a normal plugin.
+app.register(import("../src"));
+
+export default async (req, res) => {
+    await app.ready();
+    app.server.emit('request', req, res);
+}
