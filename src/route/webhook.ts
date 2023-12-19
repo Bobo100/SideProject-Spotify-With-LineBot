@@ -17,7 +17,7 @@ import line, {
   MessageEvent,
   TextEventMessage,
 } from "@line/bot-sdk";
-import processUtils from "@/utils/processhUtils";
+import processUtils from "../utils/processhUtils";
 
 type LineWebhookRequestBody = {
   events: MessageEvent[];
