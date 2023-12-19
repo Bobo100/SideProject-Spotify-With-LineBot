@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon --watch api/serverless.ts",
     "build": "yarn && tsc -p tsconfig.json",
-    "vercel-dev": "vercel dev --prod"
+    "vercel": "vercel dev"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +14,7 @@
   "dependencies": {
     "@fastify/cookie": "^9.2.0",
     "@types/node": "^18.15.0",
+    "@vercel/node": "^3.0.13",
     "dotenv": "^16.3.1",
     "fastify": "^4.0.0",
     "fastify-cli": "^5.9.0",
