@@ -26,6 +26,14 @@ app.register(spotify, {
 
 app.register(spotifyCallback, { prefix: "/api/spotify-callback" });
 
+app.listen({ port: 3000 }, (err, address) => {
+  if (err) {
+    console.error(err);
+    process.exit(1);
+  }
+  console.log(`Server listening at ${address}`);
+});
+
 export default async (req: FastifyRequest, res: FastifyReply) => {
   await app.ready();
   app.server.emit("request", req, res);

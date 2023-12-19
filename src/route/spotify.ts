@@ -20,6 +20,10 @@ const spotify = (
   opts: FastifyServerOptions,
   done: any
 ) => {
+  fastify.get("/", async (request, reply) => {
+    return `Hello World`;
+  });
+
   fastify.get("/login", async (request, reply) => {
     const clientId = process.env.SPOTIFY_CLIENT_ID;
     const params = new URLSearchParams();
