@@ -6,3 +6,4 @@
 # local env files
 .env*.local
 
+.vercel

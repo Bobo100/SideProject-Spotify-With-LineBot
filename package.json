@@ -2,10 +2,9 @@
   "name": "myproject",
   "version": "1.0.0",
   "description": "This project was bootstrapped with Fastify-CLI.",
-  "main": "api/serverless.ts",
+  "main": "index.js",
   "scripts": {
-    "dev": "nodemon --watch api/serverless.ts",
-    "build": "yarn && tsc -p tsconfig.json",
+    "test": "echo \"Error: no test specified\" && exit 1",
     "vercel": "vercel dev"
   },
   "keywords": [],
