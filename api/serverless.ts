@@ -1,6 +1,6 @@
 // Read the .env file.
-import * as dotenv from "dotenv";
-dotenv.config();
+import dotenv from "dotenv";
+dotenv.config({ path: `.env.local`, override: true });
 
 // Require the framework
 import Fastify from "fastify";
