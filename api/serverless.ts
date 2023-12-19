@@ -7,8 +7,8 @@ import fastify, {
 } from "fastify";
 import cookie from "@fastify/cookie";
 import { FastifyCookieOptions } from "@fastify/cookie";
-import spotify from "../function/spotfiy";
-import spotifyCallback from "../function/spotify-callback";
+import spotify from "../src/spotfiy";
+import spotifyCallback from "../src/spotify-callback";
 
 const fastifyOptions: FastifyServerOptions = {
   logger: true,
