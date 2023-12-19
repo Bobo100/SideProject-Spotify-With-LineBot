@@ -7,6 +7,8 @@ import Fastify from "fastify";
 import { FastifyRequest, FastifyReply } from "fastify";
 import cookie from "@fastify/cookie";
 import { FastifyCookieOptions } from "@fastify/cookie";
+import spotify from "../src/route/spotify";
+import spotifyCallback from "../src/route/spotify-callback";
 
 // Instantiate Fastify with some config
 const app = Fastify({
@@ -18,10 +20,11 @@ app.register(cookie, {
   parseOptions: {}, // options for parsing cookies
 } as FastifyCookieOptions);
 
-// Register your application as a normal plugin.
-app.register(import("../src/index"), {
+app.register(spotify, {
   prefix: "/",
 });
+
+app.register(spotifyCallback, { prefix: "/api/spotify-callback" });
 
 export default async (req: FastifyRequest, res: FastifyReply) => {
   await app.ready();
