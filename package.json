@@ -2,13 +2,11 @@
   "name": "myproject",
   "version": "1.0.0",
   "description": "This project was bootstrapped with Fastify-CLI.",
-  "main": "server.ts",
-  "directories": {
-    "test": "test"
-  },
+  "main": "api/serverless.ts",
   "scripts": {
-    "dev": "nodemon --watch server.ts",
-    "build": "tsc -p tsconfig.json"
+    "dev": "nodemon --watch api/serverless.ts",
+    "build": "tsc -p tsconfig.json",
+    "vercel": "vercel dev"
   },
   "keywords": [],
   "author": "",
@@ -16,8 +14,7 @@
   "dependencies": {
     "@fastify/cookie": "^9.2.0",
     "@types/node": "^18.15.0",
-    "dotenv": "^16.3.1",
-    "fastify": "^4.0.0",
+    "@vercel/node": "^3.0.13",
     "fastify-cli": "^5.9.0",
     "fastify-plugin": "^4.0.0",
     "nodemon": "^3.0.2",
@@ -25,6 +22,8 @@
     "typescript": "^5.3.3"
   },
   "devDependencies": {
-    "tap": "^16.1.0"
+    "tap": "^16.1.0",
+    "dotenv": "^16.3.1",
+    "fastify": "^4.0.0"
   }
 }

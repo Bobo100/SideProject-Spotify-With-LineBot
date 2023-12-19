@@ -1,4 +1,9 @@
-import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
+import {
+  FastifyInstance,
+  FastifyServerOptions,
+  FastifyRequest,
+  FastifyReply,
+} from "fastify";
 import "dotenv/config";
 
 type MyRequest = FastifyRequest<{
@@ -7,7 +12,11 @@ type MyRequest = FastifyRequest<{
   };
 }>;
 
-const spotifyCallback = (fastify: FastifyInstance, opts: any, done: any) => {
+const spotifyCallback = (
+  fastify: FastifyInstance,
+  opts: FastifyServerOptions,
+  done: any
+) => {
   fastify.get("/", async (request: MyRequest, reply: FastifyReply) => {
     const code = request.query.code;
     if (code) {

@@ -1,4 +1,9 @@
-import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
+import {
+  FastifyInstance,
+  FastifyServerOptions,
+  FastifyRequest,
+  FastifyReply,
+} from "fastify";
 import crypto from "crypto";
 import dotenv from "dotenv";
 dotenv.config({ path: `.env.local`, override: true });
@@ -10,7 +15,15 @@ type MyRequest = FastifyRequest<{
 }>;
 
 // https://www.youtube.com/watch?v=btGtOue1oDA
-const spotify = (fastify: FastifyInstance, opts: any, done: any) => {
+const spotify = (
+  fastify: FastifyInstance,
+  opts: FastifyServerOptions,
+  done: any
+) => {
+  fastify.get("/", async (request, reply) => {
+    return `Hello World`;
+  });
+
   fastify.get("/login", async (request, reply) => {
     const clientId = process.env.SPOTIFY_CLIENT_ID;
     const params = new URLSearchParams();
