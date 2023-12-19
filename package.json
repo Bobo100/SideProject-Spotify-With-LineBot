@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@fastify/cookie": "^9.2.0",
+    "@line/bot-sdk": "^8.0.2",
     "@types/node": "^18.15.0",
     "@vercel/node": "^3.0.13",
     "fastify-cli": "^5.9.0",

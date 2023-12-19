@@ -7,8 +7,8 @@ import Fastify from "fastify";
 import { FastifyRequest, FastifyReply } from "fastify";
 import cookie from "@fastify/cookie";
 import { FastifyCookieOptions } from "@fastify/cookie";
-import spotify from "../src/route/spotify";
-import spotifyCallback from "../src/route/spotify-callback";
+import spotify from "@/route/spotify";
+import spotifyCallback from "@/route/spotify-callback";
 
 // Instantiate Fastify with some config
 const app = Fastify({
