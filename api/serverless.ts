@@ -9,6 +9,7 @@ import cookie from "@fastify/cookie";
 import { FastifyCookieOptions } from "@fastify/cookie";
 import spotify from "@/route/spotify";
 import spotifyCallback from "@/route/spotify-callback";
+import webhook from "@/route/webhook";
 
 // Instantiate Fastify with some config
 const app = Fastify({
@@ -25,6 +26,8 @@ app.register(spotify, {
 });
 
 app.register(spotifyCallback, { prefix: "/api/spotify-callback" });
+
+app.register(webhook, { prefix: "/webhook" });
 
 app.listen({ port: 3000 }, (err, address) => {
   if (err) {
