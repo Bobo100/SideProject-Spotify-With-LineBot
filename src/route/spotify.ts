@@ -5,14 +5,14 @@ import {
   FastifyReply,
 } from "fastify";
 import crypto from "crypto";
-import dotenv from "dotenv";
-dotenv.config({ path: `.env.local`, override: true });
 
 type MyRequest = FastifyRequest<{
   Querystring: {
     keyWord: string;
   };
 }>;
+
+const isDev = () => process.env.ENV === "development";
 
 // https://www.youtube.com/watch?v=btGtOue1oDA
 const spotify = (
@@ -21,7 +21,7 @@ const spotify = (
   done: any
 ) => {
   fastify.get("/", async (request, reply) => {
-    return `Hello World`;
+    return `${process.env.ENV} Spotify API`;
   });
 
   fastify.get("/login", async (request, reply) => {
@@ -30,7 +30,12 @@ const spotify = (
     params.append("client_id", clientId!);
     params.append("response_type", "code");
     // 導向到我們的callback
-    const redirectUri = "http://localhost:3000/api/spotify-callback/";
+    const url =
+      // "https://side-project-spotify-with-line-bot.vercel.app";
+      "https://side-project-spotify-with-line-bot-git-branch-20231231-bobo100.vercel.app";
+    const redirectUri = isDev()
+      ? "http://localhost:3000/api/spotify-callback/"
+      : `${url}/api/spotify-callback/`;
     params.append("redirect_uri", redirectUri);
     params.append(
       "scope",

@@ -4,13 +4,14 @@ import {
   FastifyRequest,
   FastifyReply,
 } from "fastify";
-import "dotenv/config";
 
 type MyRequest = FastifyRequest<{
   Querystring: {
     code: string;
   };
 }>;
+
+const isDev = () => process.env.ENV === "development";
 
 const spotifyCallback = (
   fastify: FastifyInstance,
@@ -25,7 +26,12 @@ const spotifyCallback = (
         const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
         // 設置從spotify的redirect_uri 記得spotify的Dashboard要設定
         // 才能正確的redirect 獲得我們要的token
-        const redirectUri = "http://localhost:3000/api/spotify-callback/";
+        const url =
+          // "https://side-project-spotify-with-line-bot.vercel.app";
+          "https://side-project-spotify-with-line-bot-git-branch-20231231-bobo100.vercel.app";
+        const redirectUri = isDev()
+          ? "http://localhost:3000/api/spotify-callback/"
+          : `${url}/api/spotify-callback/`;
         const params = new URLSearchParams();
         params.append("client_id", clientId!);
         params.append("client_secret", clientSecret!);
