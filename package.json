@@ -22,5 +22,8 @@
     "nodemon": "^3.0.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "tap": "^16.1.0"
   }
 }
