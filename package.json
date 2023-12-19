@@ -2,7 +2,7 @@
   "name": "myproject",
   "version": "1.0.0",
   "description": "This project was bootstrapped with Fastify-CLI.",
-  "main": "index.js",
+  "main": "api/serverless.ts",
   "scripts": {
     "dev": "nodemon --watch api/serverless.ts",
     "build": "tsc -p tsconfig.json",
