@@ -73,14 +73,19 @@ const webhook = (
       throw new Error("無法取得搜尋結果");
     }
     // const searchData = await searchResponse.json();
-    await sendMessages(event, 'searchData');
-    return reply.status(200).send('ok');
+    // await sendMessages(event, 'searchData');
+    await replayMessage(event.replyToken, {
+      type: "text",
+      text: "這裡是你的 Spotify 搜尋結果：" + JSON.stringify(searchResponse),
+    });
+    return reply.status(200).send("ok");
   });
 
   done();
 };
 
 const sendMessages = async (event: MessageEvent, data: any) => {
+  // Client要Deprecate了，所以要改用
   const client = new line.Client({
     channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOEKN as string,
   });
@@ -89,6 +94,27 @@ const sendMessages = async (event: MessageEvent, data: any) => {
     text: "這裡是你的 Spotify 搜尋結果：" + JSON.stringify(data),
   } as TextEventMessage;
   await client.replyMessage(event.replyToken, message);
+};
+
+const LINE_HEADER = {
+  "Content-Type": "application/json",
+  Authorization: "Bearer " + process.env.LINE_CHANNEL_ACCESS_TOEKN,
+};
+
+const replayMessage = async (replyToken: string, message: any) => {
+  //  他是用request-promise，但是我想用fetch
+  try {
+    await fetch(`${process.env.LINE_MESSAGING_API}/reply`, {
+      method: "POST",
+      headers: LINE_HEADER,
+      body: JSON.stringify({
+        replyToken: replyToken,
+        messages: [message],
+      }),
+    });
+  } catch (error) {
+    console.error(`Delivery to LINE failed (${error})`);
+  }
 };
 
 export default webhook;

@@ -116,7 +116,8 @@ const spotify = (
       }
     );
     const data = await spotifyResponse.json();
-    return reply.status(200).send(data);
+    // return reply.status(200).send(data);
+    return data;
   });
 
   done();
