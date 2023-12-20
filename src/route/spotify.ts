@@ -19,8 +19,6 @@ type MyRequest = FastifyRequest<{
   };
 }>;
 
-const isDev = () => process.env.ENV === "development";
-
 // https://www.youtube.com/watch?v=btGtOue1oDA
 const spotify = (
   fastify: FastifyInstance,
@@ -37,20 +35,17 @@ const spotify = (
     params.append("client_id", clientId!);
     params.append("response_type", "code");
     // 導向到我們的callback
-    const url =
-      // "https://side-project-spotify-with-line-bot.vercel.app";
-      "https://side-project-spotify-with-line-bot-git-branch-20231231-bobo100.vercel.app";
-    const redirectUri = isDev()
-      ? "http://localhost:3000/api/spotify-callback/"
-      : `${url}/api/spotify-callback/`;
-    params.append("redirect_uri", redirectUri);
+    params.append(
+      "redirect_uri",
+      `${process.env.BASE_URL}/api/spotify-callback/`
+    );
     params.append(
       "scope",
       "user-read-private user-read-email user-read-playback-state user-modify-playback-state"
     );
     // 為了防止CSRF攻擊，我們需要在發送請求時，帶上code_challenge_method和code_challenge
     params.append("code_challenge_method", "S256");
-    const codeVerifier = generateCodeVerifier(128);    
+    const codeVerifier = generateCodeVerifier(128);
     setCodeVerifer(codeVerifier);
     const codeChallenge = await createCodeChallenge(codeVerifier);
     params.append("code_challenge", codeChallenge);
@@ -74,7 +69,7 @@ const spotify = (
     });
     const data = await result.json();
     const { access_token, refresh_token } = data;
-    if (access_token && refresh_token) {     
+    if (access_token && refresh_token) {
       setToken(access_token, token_type.accessToken);
       setToken(refresh_token, token_type.refreshToken);
       return `Success Refresh`;

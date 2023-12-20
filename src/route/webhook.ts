@@ -29,8 +29,6 @@ type MyRequest = FastifyRequest<{
   Body: LineWebhookRequestBody;
 }>;
 
-const isDev = () => process.env.ENV === "development";
-
 // https://www.youtube.com/watch?v=btGtOue1oDA
 const webhook = (
   fastify: FastifyInstance,
