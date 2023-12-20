@@ -98,12 +98,11 @@ const spotify = (
       }
     );
     const data = await spotifyResponse.json();
-    // dataa.error.status 如果沒有抓到 就代表成功    
-    if (_get(data, "error.status", false)) {
-      return reply.status(500).send(data);
-    } else {
-      return reply.status(200).send(data);
+    const errorStatus = _get(data, "error.status");
+    if (errorStatus) {
+      return reply.status(errorStatus).send(data);
     }
+    return reply.status(200).send(data);
   });
 
   fastify.get("/add", async (request: MyRequest, reply: FastifyReply) => {
