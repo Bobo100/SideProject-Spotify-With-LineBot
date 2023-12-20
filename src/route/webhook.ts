@@ -69,7 +69,12 @@ const webhook = (
     if (searchResponse.status !== 200) {
       await replayMessage(event.replyToken, {
         type: "text",
-        text: `使用者輸入的是：${messageText} 與 encodedKeyword: ${encodedKeyword} 溝通的連結是：${process.env.BASE_URL}/search?keyWord=${encodedKeyword}`,
+        text: `使用者輸入的是：${messageText} 與 encodedKeyword: ${encodedKeyword} 溝通的連結是：${
+          process.env.BASE_URL
+        }/search?keyWord=${encodedKeyword} 結果是：${
+          searchResponse.status
+        } 其他結果是：${JSON.stringify(searchResponse)}
+          `,
       });
       throw new Error("無法取得搜尋結果");
     }
