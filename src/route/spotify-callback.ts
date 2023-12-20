@@ -45,7 +45,6 @@ const spotifyCallback = (
         params.append("grant_type", "authorization_code");
         params.append("code", code);
         params.append("redirect_uri", redirectUri);
-        // const codeVerifier = request.cookies.codeVerifier;
         const codeVerifier = getCodeVerifer();
         params.append("code_verifier", codeVerifier!);
         const result = await fetch("https://accounts.spotify.com/api/token", {
@@ -55,7 +54,6 @@ const spotifyCallback = (
         });
         const data = await result.json();
         const { access_token, refresh_token } = data;
-        // 把access_token和refresh_token存到cookie
         if (access_token && refresh_token) {
           setToken(access_token, token_type.accessToken);
           setToken(refresh_token, token_type.refreshToken);

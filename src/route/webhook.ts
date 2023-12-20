@@ -51,9 +51,9 @@ const webhook = (
       .update(r || "")
       .digest("base64")
       .toString();
-    // if (signature !== request.headers["x-line-signature"]) {
-    //   return reply.status(401).send("Unauthorized");
-    // }
+    if (signature !== request.headers["x-line-signature"]) {
+      return reply.status(401).send("Unauthorized");
+    }
     //  Maybe refer: https://qiita.com/bathtimefish/items/77453b367ce634f7d677
     const body = request.body;
     const event = _get(body, "events[0]");
