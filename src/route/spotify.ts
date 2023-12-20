@@ -12,6 +12,19 @@ import {
   getToken,
   token_type,
 } from "../utils/auth";
+import line, {
+  // main APIs
+  middleware,
+  // exceptions
+  JSONParseError,
+  SignatureValidationFailed,
+  // types
+  TemplateMessage,
+  WebhookEvent,
+  MessageEvent,
+  TextEventMessage,
+} from "@line/bot-sdk";
+import _get from "lodash/get";
 
 type MyRequest = FastifyRequest<{
   Querystring: {

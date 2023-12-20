@@ -66,10 +66,29 @@ const webhook = (
     }
     const messageText = _get(eventMessage, "text", "");
     const encodedKeyword = encodeURIComponent(messageText);
-    reply.redirect("/search?keyWord=" + encodedKeyword);
+    const searchResponse = await fetch(
+      `${process.env.BASE_URL}/search?keyWord=${encodedKeyword}`
+    );
+    if (searchResponse.status !== 200) {
+      throw new Error("無法取得搜尋結果");
+    }
+    // const searchData = await searchResponse.json();
+    await sendMessages(event, 'searchData');
+    return reply.status(200).send('ok');
   });
 
   done();
+};
+
+const sendMessages = async (event: MessageEvent, data: any) => {
+  const client = new line.Client({
+    channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOEKN as string,
+  });
+  const message = {
+    type: "text",
+    text: "這裡是你的 Spotify 搜尋結果：" + JSON.stringify(data),
+  } as TextEventMessage;
+  await client.replyMessage(event.replyToken, message);
 };
 
 export default webhook;
