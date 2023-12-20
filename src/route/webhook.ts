@@ -69,7 +69,7 @@ const webhook = (
     if (searchResponse.status !== 200) {
       await replayMessage(event.replyToken, {
         type: "text",
-        text: `無法取得搜尋結果 ${searchResponse}`,
+        text: `無法取得搜尋結果 ${JSON.stringify(searchResponse)}`,
       });
       throw new Error("無法取得搜尋結果");
     }
