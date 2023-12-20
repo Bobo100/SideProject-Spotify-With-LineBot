@@ -105,7 +105,7 @@ const spotify = (
       const errorStatus = _get(data, "error.status");
       await lineUtils.replayMessage(replayToken!, {
         type: "text",
-        text: `結果你看看：${data}`,
+        text: `結果你看看：${JSON.stringify(data)}`,
       });
       if (errorStatus) {
         reply.code(errorStatus).send(data);
