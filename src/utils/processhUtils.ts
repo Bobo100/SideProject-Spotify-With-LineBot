@@ -12,10 +12,10 @@ const utils = {
         uri: item.uri,
       };
     });
-    const nextUrl = data.next;
-    const limit = data.limit;
-    const offset = data.offset;
-    const total = data.total;
+    const nextUrl = data.tracks.next;
+    const limit = data.tracks.limit;
+    const offset = data.tracks.offset;
+    const total = data.tracks.total;
     return {
       result,
       nextUrl,
