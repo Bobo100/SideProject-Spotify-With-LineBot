@@ -9,6 +9,7 @@ import { MessageEvent } from "@line/bot-sdk";
 import _get from "lodash/get";
 import { setCodeVerifer, setToken, getToken, token_type } from "../utils/auth";
 import processUtils from "../utils/processhUtils";
+import lineUtils from "../utils/lineUtils";
 
 type LineWebhookRequestBody = {
   events: MessageEvent[];
@@ -17,11 +18,6 @@ type LineWebhookRequestBody = {
 type MyRequest = FastifyRequest<{
   Body: LineWebhookRequestBody;
 }>;
-
-const LINE_HEADER = {
-  "Content-Type": "application/json",
-  Authorization: "Bearer " + process.env.LINE_CHANNEL_ACCESS_TOEKN,
-};
 
 // 1. 用戶向 LineBot 發送訊息。
 // 2. LineBot 將此訊息發送到您的 Vercel 伺服器上的 Webhook URL。
@@ -68,7 +64,7 @@ const webhook = (
     );
     if (searchResponse.status !== 200) {
       const access_token = getToken(token_type.accessToken);
-      await replayMessage(event.replyToken, {
+      await lineUtils.replayMessage(event.replyToken, {
         type: "text",
         text: `使用者輸入的是：${messageText} 與 encodedKeyword: ${encodedKeyword} 溝通的連結是：${
           process.env.BASE_URL
@@ -97,7 +93,7 @@ const webhook = (
         "fillInText": "---\nName: \nPhone: \nBirthday: \n---"
       }
     */
-    await replayMessage(event.replyToken, {
+    await lineUtils.replayMessage(event.replyToken, {
       type: "text",
       text: "這裡是你的 Spotify 搜尋結果：" + nextUrl,
     });
@@ -105,21 +101,6 @@ const webhook = (
   });
 
   done();
-};
-
-const replayMessage = async (replyToken: string, message: any) => {
-  try {
-    await fetch(`${process.env.LINE_MESSAGING_API}/reply`, {
-      method: "POST",
-      headers: LINE_HEADER,
-      body: JSON.stringify({
-        replyToken: replyToken,
-        messages: [message],
-      }),
-    });
-  } catch (error) {
-    console.error(`Delivery to LINE failed (${error})`);
-  }
 };
 
 export default webhook;
