@@ -69,7 +69,7 @@ const webhook = (
     if (searchResponse.status !== 200) {
       await replayMessage(event.replyToken, {
         type: "text",
-        text: `無法取得搜尋結果 ${JSON.stringify(searchResponse)}`,
+        text: `使用者輸入的是：${messageText} 與 encodedKeyword: ${encodedKeyword} 溝通的連結是：${process.env.BASE_URL}/search?keyWord=${encodedKeyword}`,
       });
       throw new Error("無法取得搜尋結果");
     }
@@ -88,7 +88,7 @@ const webhook = (
         "inputOption": "openKeyboard",
         "fillInText": "---\nName: \nPhone: \nBirthday: \n---"
       }
-    */   
+    */
     await replayMessage(event.replyToken, {
       type: "text",
       text: "這裡是你的 Spotify 搜尋結果：" + nextUrl,
