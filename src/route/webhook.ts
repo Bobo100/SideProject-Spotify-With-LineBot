@@ -60,7 +60,7 @@ const webhook = (
     const messageText = _get(eventMessage, "text", "");
     const encodedKeyword = encodeURIComponent(messageText);
     const searchResponse = await fetch(
-      `${process.env.BASE_URL}/search?keyWord=${encodedKeyword}`
+      `${process.env.BASE_URL}/search?keyWord=${encodedKeyword}&replyToken=${event.replyToken}`
     );
     if (searchResponse.status !== 200) {
       const access_token = getToken(token_type.accessToken);

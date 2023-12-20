@@ -12,6 +12,7 @@ import lineUtils from "../utils/lineUtils";
 type MyRequest = FastifyRequest<{
   Querystring: {
     keyWord: string;
+    replyToken: string;
   };
 }>;
 
@@ -79,6 +80,7 @@ const spotify = (
   fastify.get("/search", async (request: MyRequest, reply: FastifyReply) => {
     try {
       const keyWord = request.query.keyWord;
+      const replayToken = request.query.replyToken;
       const access_token = getToken(token_type.accessToken);
       const Params = new URLSearchParams();
       Params.append("q", keyWord!);
@@ -101,6 +103,10 @@ const spotify = (
       );
       const data = await spotifyResponse.json();
       const errorStatus = _get(data, "error.status");
+      await lineUtils.replayMessage(replayToken!, {
+        type: "text",
+        text: `結果你看看：${data}`,
+      });
       if (errorStatus) {
         reply.code(errorStatus).send(data);
       } else {
