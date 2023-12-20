@@ -5,25 +5,7 @@ import {
   FastifyReply,
 } from "fastify";
 import crypto from "crypto";
-import {
-  setCodeVerifer,
-  getCodeVerifer,
-  setToken,
-  getToken,
-  token_type,
-} from "../utils/auth";
-import line, {
-  // main APIs
-  middleware,
-  // exceptions
-  JSONParseError,
-  SignatureValidationFailed,
-  // types
-  TemplateMessage,
-  WebhookEvent,
-  MessageEvent,
-  TextEventMessage,
-} from "@line/bot-sdk";
+import { setCodeVerifer, setToken, getToken, token_type } from "../utils/auth";
 import _get from "lodash/get";
 
 type MyRequest = FastifyRequest<{
@@ -54,7 +36,7 @@ const spotify = (
     );
     params.append(
       "scope",
-      "user-read-private user-read-email user-read-playback-state user-modify-playback-state"
+      "user-read-private user-read-playback-state user-modify-playback-state playlist-read-private playlist-modify playlist-modify-private"
     );
     // 為了防止CSRF攻擊，我們需要在發送請求時，帶上code_challenge_method和code_challenge
     params.append("code_challenge_method", "S256");
@@ -116,8 +98,40 @@ const spotify = (
       }
     );
     const data = await spotifyResponse.json();
-    // return reply.status(200).send(data);
-    return data;
+    // dataa.error.status 如果沒有抓到 就代表成功    
+    if (_get(data, "error.status")) {
+      return reply.status(500).send(data);
+    } else {
+      return reply.status(200).send(data);
+    }
+  });
+
+  fastify.get("/add", async (request: MyRequest, reply: FastifyReply) => {
+    // https://api.spotify.com/v1/playlists/{playlist_id}/tracks
+    /* request body
+    {
+      "uris": [
+          "string"
+      ],
+      "position": 0
+    }
+    */
+    const access_token = getToken(token_type.accessToken);
+    const playlist_id = "5Jjn8bXv6DekewlqTF90pS";
+    const Params = {
+      uris: ["spotify:track:2A0vCSTeOryiLsbuWDwX7G"],
+      position: 0,
+    };
+    const spotifyResponse = await fetch(
+      `https://api.spotify.com/v1/playlists/${playlist_id}/tracks`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+        body: JSON.stringify(Params),
+      }
+    );
   });
 
   done();

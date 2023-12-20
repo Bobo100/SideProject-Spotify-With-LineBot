@@ -5,18 +5,7 @@ import {
   FastifyReply,
 } from "fastify";
 import crypto from "crypto";
-import line, {
-  // main APIs
-  middleware,
-  // exceptions
-  JSONParseError,
-  SignatureValidationFailed,
-  // types
-  TemplateMessage,
-  WebhookEvent,
-  MessageEvent,
-  TextEventMessage,
-} from "@line/bot-sdk";
+import { MessageEvent } from "@line/bot-sdk";
 import _get from "lodash/get";
 
 import processUtils from "../utils/processhUtils";
@@ -29,20 +18,24 @@ type MyRequest = FastifyRequest<{
   Body: LineWebhookRequestBody;
 }>;
 
-// https://www.youtube.com/watch?v=btGtOue1oDA
+const LINE_HEADER = {
+  "Content-Type": "application/json",
+  Authorization: "Bearer " + process.env.LINE_CHANNEL_ACCESS_TOEKN,
+};
+
+// 1. 用戶向 LineBot 發送訊息。
+// 2. LineBot 將此訊息發送到您的 Vercel 伺服器上的 Webhook URL。
+// 3. 您的 Vercel 伺服器接收訊息，並將其拆解。
+// 4. 您的 Vercel 伺服器觸發另一個 URL（在同一個伺服器上），以執行音樂搜索。
+// 5. 音樂搜索服務返回結果，並將其發回給您的 Vercel 伺服器。
+// 6. 您的 Vercel 伺服器將結果發回給 LineBot。
+// 7. LineBot 將結果發回給用戶。
 const webhook = (
   fastify: FastifyInstance,
   opts: FastifyServerOptions,
   done: any
 ) => {
   fastify.post("/", async (request: MyRequest, reply: FastifyReply) => {
-    // 1. 用戶向 LineBot 發送訊息。
-    // 2. LineBot 將此訊息發送到您的 Vercel 伺服器上的 Webhook URL。
-    // 3. 您的 Vercel 伺服器接收訊息，並將其拆解。
-    // 4. 您的 Vercel 伺服器觸發另一個 URL（在同一個伺服器上），以執行音樂搜索。
-    // 5. 音樂搜索服務返回結果，並將其發回給您的 Vercel 伺服器。
-    // 6. 您的 Vercel 伺服器將結果發回給 LineBot。
-    // 7. LineBot 將結果發回給用戶。
     const r = JSON.stringify(request.body);
     const signature = crypto
       .createHmac("SHA256", process.env.LINE_CHANNEL_SECRET!)
@@ -52,7 +45,11 @@ const webhook = (
     if (signature !== request.headers["x-line-signature"]) {
       return reply.status(401).send("Unauthorized");
     }
-    //  Maybe refer: https://qiita.com/bathtimefish/items/77453b367ce634f7d677
+    // TODO: 要拆分出message 和 postback
+    // 因為我們會回給user flex message
+    // 用戶點選flex message的按鈕
+    // 會觸發postback
+    // 這個postback也會被送到webhook 那要做的事情是把該postback的data 加入到spotify的播放清單中
     const body = request.body;
     const event = _get(body, "events[0]");
     const eventType = _get(event, "type");
@@ -72,11 +69,26 @@ const webhook = (
     if (searchResponse.status !== 200) {
       throw new Error("無法取得搜尋結果");
     }
-    // const searchData = await searchResponse.json();
-    // await sendMessages(event, 'searchData');
+    const searchData = await searchResponse.json();
+    const { result, nextUrl, limit, offset, total } = processUtils.filterSearch(
+      searchData
+    );
+    /* 先放postback的範例 
+      那預計會帶的是"data": "uri=spotify:track:7xGfFoTpQ2E7fRF5lN10tr" 
+      以及 有可能是"data": "limit=limit&offset=offset&total=total" 這樣的資料 
+      目的是使用者如果點選了下一頁的按鈕 要能夠知道要去哪裡取得下一頁的資料
+      {
+        "type": "postback",
+        "label": "Buy",
+        "data": "action=buy&itemid=111",
+        "displayText": "Buy",
+        "inputOption": "openKeyboard",
+        "fillInText": "---\nName: \nPhone: \nBirthday: \n---"
+      }
+    */
     await replayMessage(event.replyToken, {
       type: "text",
-      text: "這裡是你的 Spotify 搜尋結果：" + JSON.stringify(searchResponse),
+      text: "這裡是你的 Spotify 搜尋結果：" + nextUrl,
     });
     return reply.status(200).send("ok");
   });
@@ -84,25 +96,7 @@ const webhook = (
   done();
 };
 
-const sendMessages = async (event: MessageEvent, data: any) => {
-  // Client要Deprecate了，所以要改用
-  const client = new line.Client({
-    channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOEKN as string,
-  });
-  const message = {
-    type: "text",
-    text: "這裡是你的 Spotify 搜尋結果：" + JSON.stringify(data),
-  } as TextEventMessage;
-  await client.replyMessage(event.replyToken, message);
-};
-
-const LINE_HEADER = {
-  "Content-Type": "application/json",
-  Authorization: "Bearer " + process.env.LINE_CHANNEL_ACCESS_TOEKN,
-};
-
 const replayMessage = async (replyToken: string, message: any) => {
-  //  他是用request-promise，但是我想用fetch
   try {
     await fetch(`${process.env.LINE_MESSAGING_API}/reply`, {
       method: "POST",
