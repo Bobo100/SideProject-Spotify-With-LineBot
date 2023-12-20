@@ -67,12 +67,15 @@ const webhook = (
       `${process.env.BASE_URL}/search?keyWord=${encodedKeyword}`
     );
     if (searchResponse.status !== 200) {
+      await replayMessage(event.replyToken, {
+        type: "text",
+        text: "無法取得搜尋結果",
+      });
       throw new Error("無法取得搜尋結果");
     }
     const searchData = await searchResponse.json();
-    const { result, nextUrl, limit, offset, total } = processUtils.filterSearch(
-      searchData
-    );
+    const { result, nextUrl, limit, offset, total } =
+      processUtils.filterSearch(searchData);
     /* 先放postback的範例 
       那預計會帶的是"data": "uri=spotify:track:7xGfFoTpQ2E7fRF5lN10tr" 
       以及 有可能是"data": "limit=limit&offset=offset&total=total" 這樣的資料 
