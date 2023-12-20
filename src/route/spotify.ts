@@ -98,6 +98,7 @@ const spotify = (
       }
     );
     const data = await spotifyResponse.json();
+
     const errorStatus = _get(data, "error.status");
     if (errorStatus) {
       return reply.status(errorStatus).send(data);

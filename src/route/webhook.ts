@@ -7,7 +7,7 @@ import {
 import crypto from "crypto";
 import { MessageEvent } from "@line/bot-sdk";
 import _get from "lodash/get";
-
+import { setCodeVerifer, setToken, getToken, token_type } from "../utils/auth";
 import processUtils from "../utils/processhUtils";
 
 type LineWebhookRequestBody = {
@@ -67,13 +67,16 @@ const webhook = (
       `${process.env.BASE_URL}/search?keyWord=${encodedKeyword}`
     );
     if (searchResponse.status !== 200) {
+      const access_token = getToken(token_type.accessToken);
       await replayMessage(event.replyToken, {
         type: "text",
         text: `使用者輸入的是：${messageText} 與 encodedKeyword: ${encodedKeyword} 溝通的連結是：${
           process.env.BASE_URL
         }/search?keyWord=${encodedKeyword} 結果是：${
           searchResponse.status
-        } 其他結果是：${JSON.stringify(searchResponse)}
+        } 其他結果是：${JSON.stringify(
+          searchResponse
+        )} access_token: ${access_token}
           `,
       });
       throw new Error("無法取得搜尋結果");
