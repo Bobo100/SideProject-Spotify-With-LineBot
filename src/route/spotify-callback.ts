@@ -4,6 +4,13 @@ import {
   FastifyRequest,
   FastifyReply,
 } from "fastify";
+import {
+  setCodeVerifer,
+  getCodeVerifer,
+  setToken,
+  getToken,
+  token_type,
+} from "../utils/auth";
 
 type MyRequest = FastifyRequest<{
   Querystring: {
@@ -38,7 +45,8 @@ const spotifyCallback = (
         params.append("grant_type", "authorization_code");
         params.append("code", code);
         params.append("redirect_uri", redirectUri);
-        const codeVerifier = request.cookies.codeVerifier;
+        // const codeVerifier = request.cookies.codeVerifier;
+        const codeVerifier = getCodeVerifer();
         params.append("code_verifier", codeVerifier!);
         const result = await fetch("https://accounts.spotify.com/api/token", {
           method: "POST",
@@ -49,25 +57,21 @@ const spotifyCallback = (
         const { access_token, refresh_token } = data;
         // 把access_token和refresh_token存到cookie
         if (access_token && refresh_token) {
-          reply.setCookie("access_token", access_token, {
-            httpOnly: true,
-            sameSite: "lax",
-            path: "/",
-            maxAge: 3600,
-          });
-          reply.setCookie("refresh_token", refresh_token, {
-            httpOnly: true,
-            sameSite: "lax",
-            path: "/",
-            // 永久直到有新的token
-          });
+          setToken(access_token, token_type.accessToken);
+          setToken(refresh_token, token_type.refreshToken);
           return `Success Login`;
         } else {
           return `Fail Login`;
         }
       } catch (error) {}
     } else {
-      reply.redirect(`http://localhost:3000/`);
+      const url =
+        // "https://side-project-spotify-with-line-bot.vercel.app";
+        "https://side-project-spotify-with-line-bot-git-branch-20231231-bobo100.vercel.app";
+      const redirectUri = isDev()
+        ? "http://localhost:3000"
+        : `${url}`;
+      reply.redirect(redirectUri);
     }
   });
 

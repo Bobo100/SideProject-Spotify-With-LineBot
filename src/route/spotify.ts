@@ -5,6 +5,13 @@ import {
   FastifyReply,
 } from "fastify";
 import crypto from "crypto";
+import {
+  setCodeVerifer,
+  getCodeVerifer,
+  setToken,
+  getToken,
+  token_type,
+} from "../utils/auth";
 
 type MyRequest = FastifyRequest<{
   Querystring: {
@@ -44,12 +51,13 @@ const spotify = (
     // 為了防止CSRF攻擊，我們需要在發送請求時，帶上code_challenge_method和code_challenge
     params.append("code_challenge_method", "S256");
     const codeVerifier = generateCodeVerifier(128);
-    reply.setCookie("codeVerifier", codeVerifier, {
-      httpOnly: true,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 3600,
-    });
+    // reply.setCookie("codeVerifier", codeVerifier, {
+    //   httpOnly: true,
+    //   sameSite: "lax",
+    //   path: "/",
+    //   maxAge: 3600,
+    // });
+    setCodeVerifer(codeVerifier);
     const codeChallenge = await createCodeChallenge(codeVerifier);
     params.append("code_challenge", codeChallenge);
     reply.redirect(
@@ -73,18 +81,20 @@ const spotify = (
     const data = await result.json();
     const { access_token, refresh_token } = data;
     if (access_token && refresh_token) {
-      reply.setCookie("access_token", access_token, {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        maxAge: 3600,
-      });
-      reply.setCookie("refresh_token", refresh_token, {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        // 永久直到有新的token
-      });
+      // reply.setCookie("access_token", access_token, {
+      //   httpOnly: true,
+      //   sameSite: "lax",
+      //   path: "/",
+      //   maxAge: 3600,
+      // });
+      // reply.setCookie("refresh_token", refresh_token, {
+      //   httpOnly: true,
+      //   sameSite: "lax",
+      //   path: "/",
+      //   // 永久直到有新的token
+      // });
+      setToken(access_token, token_type.accessToken);
+      setToken(refresh_token, token_type.refreshToken);
       return `Success Refresh`;
     } else {
       return `Fail Refresh`;
@@ -95,7 +105,10 @@ const spotify = (
   // https://developer.spotify.com/documentation/web-api/reference/search
   fastify.get("/search", async (request: MyRequest, reply: FastifyReply) => {
     const keyWord = request.query.keyWord;
-    const access_token = request.cookies.access_token;
+    console.log("keyWord", keyWord);
+    // const access_token = request.cookies.access_token;
+    const access_token = getToken(token_type.accessToken);
+    console.log("access_token", access_token);
     const Params = new URLSearchParams();
     Params.append("q", keyWord!);
     // 可帶複數的type，但我想先不用
@@ -116,7 +129,7 @@ const spotify = (
       }
     );
     const data = await spotifyResponse.json();
-    return data;
+    return reply.status(200).send(data);
   });
 
   done();
