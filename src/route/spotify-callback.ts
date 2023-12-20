@@ -18,8 +18,6 @@ type MyRequest = FastifyRequest<{
   };
 }>;
 
-const isDev = () => process.env.ENV === "development";
-
 const spotifyCallback = (
   fastify: FastifyInstance,
   opts: FastifyServerOptions,
@@ -31,20 +29,12 @@ const spotifyCallback = (
       try {
         const clientId = process.env.SPOTIFY_CLIENT_ID;
         const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
-        // 設置從spotify的redirect_uri 記得spotify的Dashboard要設定
-        // 才能正確的redirect 獲得我們要的token
-        const url =
-          // "https://side-project-spotify-with-line-bot.vercel.app";
-          "https://side-project-spotify-with-line-bot-git-branch-20231231-bobo100.vercel.app";
-        const redirectUri = isDev()
-          ? "http://localhost:3000/api/spotify-callback/"
-          : `${url}/api/spotify-callback/`;
         const params = new URLSearchParams();
         params.append("client_id", clientId!);
         params.append("client_secret", clientSecret!);
         params.append("grant_type", "authorization_code");
         params.append("code", code);
-        params.append("redirect_uri", redirectUri);
+        params.append("redirect_uri", `${process.env.BASE_URL}/api/spotify-callback/`);
         const codeVerifier = getCodeVerifer();
         params.append("code_verifier", codeVerifier!);
         const result = await fetch("https://accounts.spotify.com/api/token", {
@@ -63,13 +53,7 @@ const spotifyCallback = (
         }
       } catch (error) {}
     } else {
-      const url =
-        // "https://side-project-spotify-with-line-bot.vercel.app";
-        "https://side-project-spotify-with-line-bot-git-branch-20231231-bobo100.vercel.app";
-      const redirectUri = isDev()
-        ? "http://localhost:3000"
-        : `${url}`;
-      reply.redirect(redirectUri);
+      reply.redirect(process.env.BASE_URL as string);
     }
   });
 
