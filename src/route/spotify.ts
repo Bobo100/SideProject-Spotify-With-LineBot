@@ -88,7 +88,6 @@ const spotify = (
   fastify.get("/search", async (request: MyRequest, reply: FastifyReply) => {
     try {
       const keyWord = request.query.keyWord;
-      const replayToken = request.query.replyToken;
       const token = await fastify.mongo.db?.collection("token").findOne({});
       const access_token = _get(token, "access_token");
       const Params = new URLSearchParams();
@@ -111,11 +110,7 @@ const spotify = (
         }
       );
       const data = await spotifyResponse.json();
-      const errorStatus = _get(data, "error.status");
-      await lineUtils.replayMessage(replayToken!, {
-        type: "text",
-        text: `結果你看看：${JSON.stringify(data)}`,
-      });
+      const errorStatus = _get(data, "error.status");     
       if (errorStatus) {
         reply.code(errorStatus).send(data);
       } else {

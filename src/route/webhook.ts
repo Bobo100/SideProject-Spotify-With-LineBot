@@ -5,18 +5,31 @@ import {
   FastifyReply,
 } from "fastify";
 import crypto from "crypto";
-import { MessageEvent } from "@line/bot-sdk";
+import {
+  WebhookEvent,
+  MessageEvent,
+  PostbackEvent,
+  TextEventMessage,
+  EventMessage,
+} from "@line/bot-sdk";
 import _get from "lodash/get";
 import processUtils from "../utils/processhUtils";
 import lineUtils from "../utils/lineUtils";
+import { filterSearchType } from "../utils/lineType";
+import _isEqual from "lodash/isEqual";
 
 type LineWebhookRequestBody = {
   events: MessageEvent[];
 };
 
 type MyRequest = FastifyRequest<{
-  Body: LineWebhookRequestBody;
+  Body: WebhookEvent;
 }>;
+
+const Commands = {
+  ADD_TRACK: "ADD_TRACK",
+  SEARCH_MORE: "SEARCH_MORE",
+};
 
 // 1. 用戶向 LineBot 發送訊息。
 // 2. LineBot 將此訊息發送到您的 Vercel 伺服器上的 Webhook URL。
@@ -46,61 +59,71 @@ const webhook = (
     // 會觸發postback
     // 這個postback也會被送到webhook 那要做的事情是把該postback的data 加入到spotify的播放清單中
     const body = request.body;
-    const event = _get(body, "events[0]");
-    const eventType = _get(event, "type");
-    if (eventType != "message") {
-      return reply.status(200).send("Not message event");
+    switch (body.type) {
+      case "message":
+        handleMessageEvent(body.message, body.replyToken);
+        break;
+      case "postback":
+        handlePostbackEvent(body);
+        break;
+      default:
+        break;
     }
-    const eventMessage = _get(event, "message");
-    const messageType = _get(eventMessage, "type");
-    if (messageType != "text") {
-      return reply.status(200).send("Not text message");
-    }
-    const messageText = _get(eventMessage, "text", "");
-    const encodedKeyword = encodeURIComponent(messageText);
-    const searchResponse = await fetch(
-      `${process.env.BASE_URL}/search?keyWord=${encodedKeyword}&replyToken=${event.replyToken}`
-    );
-    if (searchResponse.status !== 200) {
-      const token = await fastify.mongo.db?.collection("token").findOne({});
-      const access_token = _get(token, "access_token");
-      await lineUtils.replayMessage(event.replyToken, {
-        type: "text",
-        text: `使用者輸入的是：${messageText} 與 encodedKeyword: ${encodedKeyword} 溝通的連結是：${
-          process.env.BASE_URL
-        }/search?keyWord=${encodedKeyword} 結果是：${
-          searchResponse.status
-        } 其他結果是：${JSON.stringify(
-          searchResponse
-        )} access_token: ${access_token}
-          `,
-      });
-      throw new Error("無法取得搜尋結果");
-    }
-    const searchData = await searchResponse.json();
-    const { result, nextUrl, limit, offset, total } =
-      processUtils.filterSearch(searchData);
-    /* 先放postback的範例 
-      那預計會帶的是"data": "uri=spotify:track:7xGfFoTpQ2E7fRF5lN10tr" 
-      以及 有可能是"data": "limit=limit&offset=offset&total=total" 這樣的資料 
-      目的是使用者如果點選了下一頁的按鈕 要能夠知道要去哪裡取得下一頁的資料
-      {
-        "type": "postback",
-        "label": "Buy",
-        "data": "action=buy&itemid=111",
-        "displayText": "Buy",
-        "inputOption": "openKeyboard",
-        "fillInText": "---\nName: \nPhone: \nBirthday: \n---"
-      }
-    */
-    await lineUtils.replayMessage(event.replyToken, {
-      type: "text",
-      text: "這裡是你的 Spotify 搜尋結果：" + nextUrl,
-    });
+
     return reply.status(200).send("ok");
   });
 
   done();
 };
+
+const handleMessageEvent = async (
+  eventMessage: EventMessage,
+  replyToken: string
+) => {
+  const type = eventMessage.type;
+  switch (type) {
+    case "text":
+      const text = eventMessage.text;
+      handleTextEventMessage(text, replyToken);
+      break;
+    default:
+      break;
+  }
+};
+
+const handlePostbackEvent = async (postbackEvent: PostbackEvent) => {
+  const { data, params = "" } = postbackEvent.postback;
+  const replyToken = postbackEvent.replyToken;
+  // 根據回傳的data來做不同的處理
+  return;
+};
+
+const handleTextEventMessage = async (text: string, replyToken: string) => {
+  const encodedKeyword = encodeURIComponent(text);
+  const searchResponse = await fetch(
+    `${process.env.BASE_URL}/search?keyWord=${encodedKeyword}`
+  );
+  if (_isEqual(searchResponse.status, 200)) {
+    const searchData = await searchResponse.json();
+    const { result, nextUrl, limit, offset, total } =
+      processUtils.filterSearch(searchData);
+
+    const message = await lineUtils.generateMessageTemplate();
+    message.contents.body.contents = result.map((item: filterSearchType) => {
+      return lineUtils.generateFlexbox(item);
+    });
+
+    // 這邊要來做flex message
+    await lineUtils.replayMessage(replyToken, {
+      type: "text",
+      text: message,
+    });
+  }
+};
+
+const handleTypePostback = async (
+  body: PostbackEvent,
+  fastify: FastifyInstance
+) => {};
 
 export default webhook;
