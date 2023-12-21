@@ -55,10 +55,10 @@ const webhook = (
     const event = events[0];
     switch (event.type) {
       case "message":
-        handleMessageEvent(event);
+        await handleMessageEvent(event);
         break;
       case "postback":
-        handlePostbackEvent(event);
+        await handlePostbackEvent(event);
         break;
       default:
         break;
@@ -75,7 +75,7 @@ const handleMessageEvent = async (body: MessageEvent) => {
   switch (type) {
     case "text":
       const text = body.message.text;
-      handleTextEventMessage(text, body.replyToken);
+      await handleTextEventMessage(text, body.replyToken);
       break;
     default:
       break;
@@ -99,16 +99,22 @@ const handleTextEventMessage = async (text: string, replyToken: string) => {
     const { result, nextUrl, limit, offset, total } =
       processUtils.filterSearch(searchData);
 
-    const message = await lineUtils.generateMessageTemplate();
-    message.contents.body.contents = result.map((item: filterSearchType) => {
-      return lineUtils.generateFlexbox(item);
-    });
+    try {
+      const message = await lineUtils.generateMessageTemplate();
+      message.contents.body.contents = result.map((item: filterSearchType) => {
+        return lineUtils.generateFlexbox(item);
+      });
 
-    // 這邊要來做flex message
-    await lineUtils.replayMessage(replyToken, {
-      type: "text",
-      text: message,
-    });
+      // 這邊要來做flex message
+      // 先測試一般的text message就好
+      await lineUtils.replayMessage(replyToken, {
+        type: "text",
+        // text: message,
+        text: `共${total}筆資料`,
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 };
 
