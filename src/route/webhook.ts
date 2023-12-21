@@ -6,6 +6,7 @@ import {
 } from "fastify";
 import crypto from "crypto";
 import {
+  WebhookRequestBody,
   WebhookEvent,
   MessageEvent,
   PostbackEvent,
@@ -18,18 +19,9 @@ import lineUtils from "../utils/lineUtils";
 import { filterSearchType } from "../utils/lineType";
 import _isEqual from "lodash/isEqual";
 
-type LineWebhookRequestBody = {
-  events: MessageEvent[];
-};
-
 type MyRequest = FastifyRequest<{
-  Body: WebhookEvent;
+  Body: WebhookRequestBody;
 }>;
-
-const Commands = {
-  ADD_TRACK: "ADD_TRACK",
-  SEARCH_MORE: "SEARCH_MORE",
-};
 
 // 1. 用戶向 LineBot 發送訊息。
 // 2. LineBot 將此訊息發送到您的 Vercel 伺服器上的 Webhook URL。
@@ -59,12 +51,14 @@ const webhook = (
     // 會觸發postback
     // 這個postback也會被送到webhook 那要做的事情是把該postback的data 加入到spotify的播放清單中
     const body = request.body;
-    switch (body.type) {
+    const events = body.events;
+    const event = events[0];
+    switch (event.type) {
       case "message":
-        handleMessageEvent(body.message, body.replyToken);
+        handleMessageEvent(event);
         break;
       case "postback":
-        handlePostbackEvent(body);
+        handlePostbackEvent(event);
         break;
       default:
         break;
@@ -76,15 +70,12 @@ const webhook = (
   done();
 };
 
-const handleMessageEvent = async (
-  eventMessage: EventMessage,
-  replyToken: string
-) => {
-  const type = eventMessage.type;
+const handleMessageEvent = async (body: MessageEvent) => {
+  const type = body.message.type;
   switch (type) {
     case "text":
-      const text = eventMessage.text;
-      handleTextEventMessage(text, replyToken);
+      const text = body.message.text;
+      handleTextEventMessage(text, body.replyToken);
       break;
     default:
       break;
