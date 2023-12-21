@@ -5,7 +5,7 @@ import {
   FastifyReply,
 } from "fastify";
 import crypto from "crypto";
-import { setCodeVerifer, setToken, getToken, token_type } from "../utils/auth";
+import { setCodeVerifer } from "../utils/auth";
 import _get from "lodash/get";
 import lineUtils from "../utils/lineUtils";
 
@@ -67,8 +67,16 @@ const spotify = (
     const data = await result.json();
     const { access_token, refresh_token } = data;
     if (access_token && refresh_token) {
-      setToken(access_token, token_type.accessToken);
-      setToken(refresh_token, token_type.refreshToken);
+      fastify.mongo.db?.collection("token").updateOne(
+        {},
+        {
+          $set: {
+            access_token,
+            refresh_token,
+          },
+        },
+        { upsert: true }
+      );
       return `Success Refresh`;
     } else {
       return `Fail Refresh`;
@@ -81,7 +89,8 @@ const spotify = (
     try {
       const keyWord = request.query.keyWord;
       const replayToken = request.query.replyToken;
-      const access_token = getToken(token_type.accessToken);
+      const token = await fastify.mongo.db?.collection("token").findOne({});
+      const access_token = _get(token, "access_token");
       const Params = new URLSearchParams();
       Params.append("q", keyWord!);
       // 可帶複數的type，但我想先不用
@@ -127,7 +136,8 @@ const spotify = (
       "position": 0
     }
     */
-    const access_token = getToken(token_type.accessToken);
+    const token = await fastify.mongo.db?.collection("token").findOne({});
+    const access_token = _get(token, "access_token");
     const playlist_id = "5Jjn8bXv6DekewlqTF90pS";
     const Params = {
       uris: ["spotify:track:2A0vCSTeOryiLsbuWDwX7G"],

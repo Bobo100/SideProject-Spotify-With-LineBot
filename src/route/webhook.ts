@@ -7,7 +7,6 @@ import {
 import crypto from "crypto";
 import { MessageEvent } from "@line/bot-sdk";
 import _get from "lodash/get";
-import { setCodeVerifer, setToken, getToken, token_type } from "../utils/auth";
 import processUtils from "../utils/processhUtils";
 import lineUtils from "../utils/lineUtils";
 
@@ -63,7 +62,8 @@ const webhook = (
       `${process.env.BASE_URL}/search?keyWord=${encodedKeyword}&replyToken=${event.replyToken}`
     );
     if (searchResponse.status !== 200) {
-      const access_token = getToken(token_type.accessToken);
+      const token = await fastify.mongo.db?.collection("token").findOne({});
+      const access_token = _get(token, "access_token");
       await lineUtils.replayMessage(event.replyToken, {
         type: "text",
         text: `使用者輸入的是：${messageText} 與 encodedKeyword: ${encodedKeyword} 溝通的連結是：${

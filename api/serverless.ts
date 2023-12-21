@@ -10,10 +10,16 @@ import { FastifyCookieOptions } from "@fastify/cookie";
 import spotify from "../src/route/spotify";
 import spotifyCallback from "../src/route/spotify-callback";
 import webhook from "../src/route/webhook";
+import mongodb from "@fastify/mongodb";
 
 // Instantiate Fastify with some config
 const app = Fastify({
   logger: true,
+});
+
+
+app.register(mongodb, {
+  url: `mongodb+srv://${process.env.USER_NAME}:${process.env.MONGODB_PASSEWORD}@cluster0.yjz075d.mongodb.net/${process.env.DATABASE_NAME}?retryWrites=true&w=majority`,
 });
 
 app.register(cookie, {

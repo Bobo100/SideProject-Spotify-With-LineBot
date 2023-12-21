@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@fastify/cookie": "^9.2.0",
+    "@fastify/mongodb": "^8.0.0",
     "@line/bot-sdk": "^8.0.2",
     "@types/lodash": "^4.14.202",
     "@types/node": "^18.15.0",

@@ -4,13 +4,7 @@ import {
   FastifyRequest,
   FastifyReply,
 } from "fastify";
-import {
-  setCodeVerifer,
-  getCodeVerifer,
-  setToken,
-  getToken,
-  token_type,
-} from "../utils/auth";
+import { getCodeVerifer } from "../utils/auth";
 
 type MyRequest = FastifyRequest<{
   Querystring: {
@@ -34,7 +28,10 @@ const spotifyCallback = (
         params.append("client_secret", clientSecret!);
         params.append("grant_type", "authorization_code");
         params.append("code", code);
-        params.append("redirect_uri", `${process.env.BASE_URL}/api/spotify-callback/`);
+        params.append(
+          "redirect_uri",
+          `${process.env.BASE_URL}/api/spotify-callback/`
+        );
         const codeVerifier = getCodeVerifer();
         params.append("code_verifier", codeVerifier!);
         const result = await fetch("https://accounts.spotify.com/api/token", {
@@ -45,8 +42,16 @@ const spotifyCallback = (
         const data = await result.json();
         const { access_token, refresh_token } = data;
         if (access_token && refresh_token) {
-          setToken(access_token, token_type.accessToken);
-          setToken(refresh_token, token_type.refreshToken);
+          await fastify.mongo.db?.collection("token").updateOne(
+            {},
+            {
+              $set: {
+                access_token,
+                refresh_token,
+              },
+            },
+            { upsert: true }
+          );
           return `Success Login`;
         } else {
           return `Fail Login`;
