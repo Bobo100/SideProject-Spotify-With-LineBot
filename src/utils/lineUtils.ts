@@ -86,7 +86,7 @@ const utils = {
           ],
           flex: 0,
           cornerRadius: "5px",
-          width: "30%",
+          width: "20%",
           spacing: "none",
         },
         {
@@ -112,7 +112,7 @@ const utils = {
             },
           ],
           spacing: "none",
-          width: "40%",
+          width: "30%",
         },
         {
           type: "box",
@@ -131,7 +131,7 @@ const utils = {
             },
           ],
           spacing: "none",
-          width: "10%",
+          width: "20%",
         },
         {
           type: "box",
@@ -150,7 +150,7 @@ const utils = {
             },
           ],
           spacing: "none",
-          width: "10%",
+          width: "20%",
         },
       ],
       backgroundColor: "#191414",
