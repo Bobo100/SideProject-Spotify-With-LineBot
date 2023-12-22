@@ -103,14 +103,10 @@ const handleTextEventMessage = async (text: string, replyToken: string) => {
       const message = await lineUtils.generateMessageTemplate();
       message.contents.body.contents = await result.map(
         (item: filterSearchType) => {
-          console.log(item);
           return lineUtils.generateFlexbox(item);
         }
       );
-      await lineUtils.replayMessage(replyToken, {
-        type: "text",
-        text: message,
-      });
+      await lineUtils.replayMessage(replyToken, message);
       return message;
     } catch (error) {
       console.log(error);
