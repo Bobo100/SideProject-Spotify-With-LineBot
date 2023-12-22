@@ -1,3 +1,5 @@
+import { filterSearchType } from "../utils/lineType";
+
 const LINE_HEADER = {
   "Content-Type": "application/json",
   Authorization: "Bearer " + process.env.LINE_CHANNEL_ACCESS_TOEKN,
@@ -54,19 +56,19 @@ const utils = {
           type: "box",
           layout: "vertical",
           contents: [],
-          backgroundColor: "#191414",
-          spacing: "md",
+          // backgroundColor: "#191414",
+          // spacing: "md",
         },
-        styles: {
-          header: {
-            backgroundColor: "#1DB954",
-          },
-        },
+        // styles: {
+        //   header: {
+        //     backgroundColor: "#1DB954",
+        //   },
+        // },
       },
     };
     return message;
   },
-  generateFlexbox: async (data: any) => {
+  generateFlexbox: (data: filterSearchType) => {
     return {
       type: "box",
       layout: "horizontal",

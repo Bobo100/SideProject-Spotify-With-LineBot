@@ -53,9 +53,10 @@ const webhook = (
     const body = request.body;
     const events = body.events;
     const event = events[0];
+    let result = null;
     switch (event.type) {
       case "message":
-        await handleMessageEvent(event);
+        result = await handleMessageEvent(event);
         break;
       case "postback":
         await handlePostbackEvent(event);
@@ -64,7 +65,7 @@ const webhook = (
         break;
     }
 
-    return reply.status(200).send("ok");
+    return reply.status(200).send(result);
   });
 
   done();
@@ -75,8 +76,7 @@ const handleMessageEvent = async (body: MessageEvent) => {
   switch (type) {
     case "text":
       const text = body.message.text;
-      await handleTextEventMessage(text, body.replyToken);
-      break;
+      return await handleTextEventMessage(text, body.replyToken);
     default:
       break;
   }
@@ -101,21 +101,22 @@ const handleTextEventMessage = async (text: string, replyToken: string) => {
 
     try {
       const message = await lineUtils.generateMessageTemplate();
-      message.contents.body.contents = result.map((item: filterSearchType) => {
-        return lineUtils.generateFlexbox(item);
-      });
-
-      // 這邊要來做flex message
-      // 先測試一般的text message就好
+      message.contents.body.contents = await result.map(
+        (item: filterSearchType) => {
+          console.log(item);
+          return lineUtils.generateFlexbox(item);
+        }
+      );
       await lineUtils.replayMessage(replyToken, {
         type: "text",
-        // text: message,
-        text: `共${total}筆資料`,
+        text: message,
       });
+      return message;
     } catch (error) {
       console.log(error);
     }
   }
+  return null;
 };
 
 const handleTypePostback = async (
