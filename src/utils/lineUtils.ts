@@ -5,6 +5,11 @@ const LINE_HEADER = {
   Authorization: "Bearer " + process.env.LINE_CHANNEL_ACCESS_TOEKN,
 };
 
+const Commands = {
+  ADD_TRACK: "ADD_TRACK",
+  SEARCH_MORE: "SEARCH_MORE",
+};
+
 const utils = {
   replayMessage: async (replyToken: string, message: any) => {
     try {
@@ -56,14 +61,14 @@ const utils = {
           type: "box",
           layout: "vertical",
           contents: [],
-          // backgroundColor: "#191414",
-          // spacing: "md",
+          backgroundColor: "#191414",
+          spacing: "md",
         },
-        // styles: {
-        //   header: {
-        //     backgroundColor: "#1DB954",
-        //   },
-        // },
+        styles: {
+          header: {
+            backgroundColor: "#1DB954",
+          },
+        },
       },
     };
     return message;
@@ -107,7 +112,7 @@ const utils = {
               size: "xxs",
               wrap: true,
               color: "#FFFFFF",
-              text: `template`,
+              text: `author`,
               // text: this.generateArtistList(track),
             },
           ],
@@ -120,11 +125,10 @@ const utils = {
           contents: [
             {
               type: "button",
-              // action: utils.generatePostbackButton("Add", {
-              //   command: Commands.ADD_TRACK,
-              //   track: track.id,
-              // }),
-              action: `template`,
+              action: utils.generatePostbackButton("ADD", {
+                action: Commands.ADD_TRACK,
+                uri: data.uri,
+              }),
               style: "primary",
               gravity: "bottom",
               color: "#1DB954",
@@ -139,7 +143,7 @@ const utils = {
       cornerRadius: "5px",
     };
   },
-  generatePostbackButton: async (title: string, payload: any) => {
+  generatePostbackButton: (title: string, payload: any) => {
     /*
     {
       "type": "postback",
@@ -149,11 +153,16 @@ const utils = {
       "inputOption": "openKeyboard",
       "fillInText": "---\nName: \nPhone: \nBirthday: \n---"
     }
+    payload: {
+      action: Commands.ADD_TRACK,
+      uri: data.uri,
+    }         
+    // 要轉換成action=Commands.ADD_TRACK&uri=data.uri
     */
     return {
       type: "postback",
       label: title,
-      data: JSON.stringify(payload),
+      data: `action=${payload.action}&uri=${payload.uri}`,
     };
   },
 };
