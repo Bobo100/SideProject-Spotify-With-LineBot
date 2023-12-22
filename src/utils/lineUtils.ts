@@ -177,7 +177,7 @@ const utils = {
     return {
       type: "postback",
       label: title,
-      data: `action=${payload.action}&uri=${payload.uri}`,
+      data: `action=${payload.action}&uri=${payload.uri}&position=${payload.position}`,
     };
   },
 };
