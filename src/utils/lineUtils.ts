@@ -123,6 +123,7 @@ const utils = {
               action: utils.generatePostbackButton("INSERT", {
                 action: actionCommands.ADD_TRACK,
                 uri: data.uri,
+                position: "0",
               }),
               style: "primary",
               gravity: "bottom",
@@ -130,7 +131,7 @@ const utils = {
             },
           ],
           spacing: "none",
-          width: "20%",
+          width: "10%",
         },
         {
           type: "box",
@@ -141,6 +142,7 @@ const utils = {
               action: utils.generatePostbackButton("APPEND", {
                 action: actionCommands.ADD_TRACK,
                 uri: data.uri,
+                position: null,
               }),
               style: "primary",
               gravity: "bottom",
@@ -148,7 +150,7 @@ const utils = {
             },
           ],
           spacing: "none",
-          width: "20%",
+          width: "10%",
         },
       ],
       backgroundColor: "#191414",

@@ -155,12 +155,14 @@ const spotify = (
       const position = request.query.position;
       // https://api.spotify.com/v1/playlists/{playlist_id}/tracks
       const playlist_id = "5Jjn8bXv6DekewlqTF90pS";
-      const Params = {
+      const Params: { [key: string]: any } = {
         uris: [uri],
         // 不寫的話會預設加到最後一首
         // 那我們可以設定兩個action一個是加到最後一首，一個是加到第一首
-        position: position,
       };
+      if (position) {
+        Params["position"] = position;
+      }
       const spotifyResponse = await httpUtils.httpFetchPostWithToken({
         url: `https://api.spotify.com/v1/playlists/${playlist_id}/tracks`,
         body: JSON.stringify(Params),
