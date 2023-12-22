@@ -120,7 +120,25 @@ const utils = {
           contents: [
             {
               type: "button",
-              action: utils.generatePostbackButton("ADD", {
+              action: utils.generatePostbackButton("INSERT", {
+                action: actionCommands.ADD_TRACK,
+                uri: data.uri,
+              }),
+              style: "primary",
+              gravity: "bottom",
+              color: "#1DB954",
+            },
+          ],
+          spacing: "none",
+          width: "20%",
+        },
+        {
+          type: "box",
+          layout: "vertical",
+          contents: [
+            {
+              type: "button",
+              action: utils.generatePostbackButton("APPEND", {
                 action: actionCommands.ADD_TRACK,
                 uri: data.uri,
               }),

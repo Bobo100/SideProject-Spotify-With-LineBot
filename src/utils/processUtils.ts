@@ -1,3 +1,6 @@
+import _get from "lodash/get";
+import { FastifyReply } from "fastify";
+import { AnyARecord } from "dns";
 const utils = {
   filterSearch: (data: any) => {
     // 我們要處理的資料
@@ -22,6 +25,14 @@ const utils = {
       offset,
       total,
     };
+  },
+  processResponseAndReturn: async (responseData: any, reply: FastifyReply) => {
+    const errorStatus = _get(responseData, "error.status");
+    if (errorStatus) {
+      reply.code(errorStatus).send(responseData);
+    } else {
+      reply.code(200).send(responseData);
+    }
   },
 };
 

@@ -13,3 +13,15 @@
 1. 伺服器架在Vercel上使用Fastify框架
 2. 資料庫使用MongoDB
 3. LineBot使用LineBotSDK
+
+TODO:
+
+1. [ ] create a playlist
+2. [X] add song to playlist
+3. [ ] advance: add song to selected playlist (mongoDb need to store playlist id)
+4. [ ] delete song from playlist
+5. [ ] detele playlist
+6. [ ] play playlist
+7. [ ] pause playlist
+8. [ ] resume playlist
+9. [ ] skip song
