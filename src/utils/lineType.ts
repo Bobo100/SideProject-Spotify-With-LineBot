@@ -4,3 +4,7 @@ export type filterSearchType = {
   external_url: string;
   uri: string;
 };
+
+export const actionCommands = {
+  ADD_TRACK: "ADD_TRACK",
+};

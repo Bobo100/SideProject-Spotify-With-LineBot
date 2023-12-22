@@ -1,13 +1,7 @@
-import { filterSearchType } from "../utils/lineType";
-
+import { filterSearchType, actionCommands } from "../utils/lineType";
 const LINE_HEADER = {
   "Content-Type": "application/json",
   Authorization: "Bearer " + process.env.LINE_CHANNEL_ACCESS_TOEKN,
-};
-
-const Commands = {
-  ADD_TRACK: "ADD_TRACK",
-  SEARCH_MORE: "SEARCH_MORE",
 };
 
 const utils = {
@@ -127,7 +121,7 @@ const utils = {
             {
               type: "button",
               action: utils.generatePostbackButton("ADD", {
-                action: Commands.ADD_TRACK,
+                action: actionCommands.ADD_TRACK,
                 uri: data.uri,
               }),
               style: "primary",
@@ -155,10 +149,10 @@ const utils = {
       "fillInText": "---\nName: \nPhone: \nBirthday: \n---"
     }
     payload: {
-      action: Commands.ADD_TRACK,
+      action: actionCommands.ADD_TRACK,
       uri: data.uri,
     }         
-    // 要轉換成action=Commands.ADD_TRACK&uri=data.uri
+    // 要轉換成action=actionCommands.ADD_TRACK&uri=data.uri
     */
     return {
       type: "postback",

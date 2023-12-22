@@ -9,10 +9,15 @@ import { setCodeVerifer } from "../utils/auth";
 import _get from "lodash/get";
 import lineUtils from "../utils/lineUtils";
 
-type MyRequest = FastifyRequest<{
+type SearchRequest = FastifyRequest<{
   Querystring: {
     keyWord: string;
-    replyToken: string;
+  };
+}>;
+
+type AddRequest = FastifyRequest<{
+  Querystring: {
+    uri: string;
   };
 }>;
 
@@ -85,43 +90,47 @@ const spotify = (
 
   // search
   // https://developer.spotify.com/documentation/web-api/reference/search
-  fastify.get("/search", async (request: MyRequest, reply: FastifyReply) => {
-    try {
-      const keyWord = request.query.keyWord;
-      const token = await fastify.mongo.db?.collection("token").findOne({});
-      const access_token = _get(token, "access_token");
-      const Params = new URLSearchParams();
-      Params.append("q", keyWord!);
-      // 可帶複數的type，但我想先不用
-      Params.append("type", "track");
-      // 限定台灣
-      Params.append("market", "TW");
-      // 一次顯示幾筆
-      Params.append("limit", "10");
-      // offset用來做分頁
-      Params.append("offset", "0");
-      const spotifyResponse = await fetch(
-        `https://api.spotify.com/v1/search?${Params.toString()}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${access_token}`,
-          },
+  fastify.get(
+    "/search",
+    async (request: SearchRequest, reply: FastifyReply) => {
+      try {
+        const keyWord = request.query.keyWord;
+        const token = await fastify.mongo.db?.collection("token").findOne({});
+        const access_token = _get(token, "access_token");
+        const Params = new URLSearchParams();
+        Params.append("q", keyWord!);
+        // 可帶複數的type，但我想先不用
+        Params.append("type", "track");
+        // 限定台灣
+        Params.append("market", "TW");
+        // 一次顯示幾筆
+        Params.append("limit", "10");
+        // offset用來做分頁
+        Params.append("offset", "0");
+        const spotifyResponse = await fetch(
+          `https://api.spotify.com/v1/search?${Params.toString()}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${access_token}`,
+            },
+          }
+        );
+        const data = await spotifyResponse.json();
+        const errorStatus = _get(data, "error.status");
+        if (errorStatus) {
+          reply.code(errorStatus).send(data);
+        } else {
+          reply.code(200).send(data);
         }
-      );
-      const data = await spotifyResponse.json();
-      const errorStatus = _get(data, "error.status");     
-      if (errorStatus) {
-        reply.code(errorStatus).send(data);
-      } else {
-        reply.code(200).send(data);
+      } catch (error) {
+        reply.code(500).send(error);
       }
-    } catch (error) {
-      reply.code(500).send(error);
     }
-  });
+  );
 
-  fastify.get("/add", async (request: MyRequest, reply: FastifyReply) => {
+  fastify.get("/add", async (request: AddRequest, reply: FastifyReply) => {
+    const uri = request.query.uri;
     // https://api.spotify.com/v1/playlists/{playlist_id}/tracks
     /* request body
     {
@@ -135,7 +144,7 @@ const spotify = (
     const access_token = _get(token, "access_token");
     const playlist_id = "5Jjn8bXv6DekewlqTF90pS";
     const Params = {
-      uris: ["spotify:track:2A0vCSTeOryiLsbuWDwX7G"],
+      uris: [uri],
       position: 0,
     };
     const spotifyResponse = await fetch(
@@ -148,6 +157,13 @@ const spotify = (
         body: JSON.stringify(Params),
       }
     );
+    const data = await spotifyResponse.json();
+    const errorStatus = _get(data, "error.status");
+    if (errorStatus) {
+      reply.code(errorStatus).send(data);
+    } else {
+      reply.code(200).send(data);
+    }
   });
 
   done();

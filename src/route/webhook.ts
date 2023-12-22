@@ -5,21 +5,14 @@ import {
   FastifyReply,
 } from "fastify";
 import crypto from "crypto";
-import {
-  WebhookRequestBody,
-  WebhookEvent,
-  MessageEvent,
-  PostbackEvent,
-  TextEventMessage,
-  EventMessage,
-} from "@line/bot-sdk";
+import { WebhookRequestBody, MessageEvent, PostbackEvent } from "@line/bot-sdk";
 import _get from "lodash/get";
 import processUtils from "../utils/processhUtils";
 import lineUtils from "../utils/lineUtils";
-import { filterSearchType } from "../utils/lineType";
+import { filterSearchType, actionCommands } from "../utils/lineType";
 import _isEqual from "lodash/isEqual";
 
-type MyRequest = FastifyRequest<{
+type WebhookRequest = FastifyRequest<{
   Body: WebhookRequestBody;
 }>;
 
@@ -35,7 +28,7 @@ const webhook = (
   opts: FastifyServerOptions,
   done: any
 ) => {
-  fastify.post("/", async (request: MyRequest, reply: FastifyReply) => {
+  fastify.post("/", async (request: WebhookRequest, reply: FastifyReply) => {
     const r = JSON.stringify(request.body);
     const signature = crypto
       .createHmac("SHA256", process.env.LINE_CHANNEL_SECRET!)
@@ -85,8 +78,32 @@ const handleMessageEvent = async (body: MessageEvent) => {
 const handlePostbackEvent = async (postbackEvent: PostbackEvent) => {
   const { data, params = "" } = postbackEvent.postback;
   const replyToken = postbackEvent.replyToken;
-  // 根據回傳的data來做不同的處理
-  return;
+  const keyValuePairs = data.split("&");
+
+  const dataParams: { [key: string]: string } = {};
+
+  for (const pair of keyValuePairs) {
+    const [key, value] = pair.split("=");
+    dataParams[key] = value;
+  }
+
+  const action = dataParams["action"];
+  const uri = dataParams["uri"];
+  // 根據action決定要去做什麼事情
+  switch (action) {
+    case actionCommands.ADD_TRACK:
+      const searchResponse = await fetch(
+        `${process.env.BASE_URL}/add?uri=${uri}`
+      );
+      if (_isEqual(searchResponse.status, 200)) {
+        return await lineUtils.replayMessage(replyToken, {
+          type: "text",
+          text: "已加入歌單",
+        });
+      }
+    default:
+      break;
+  }
 };
 
 const handleTextEventMessage = async (text: string, replyToken: string) => {
