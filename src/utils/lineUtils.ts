@@ -61,12 +61,13 @@ const utils = {
           type: "box",
           layout: "vertical",
           contents: [],
-          backgroundColor: "#191414",
-          spacing: "md",
         },
         styles: {
           header: {
             backgroundColor: "#1DB954",
+          },
+          body: {
+            backgroundColor: "#191414",
           },
         },
       },
