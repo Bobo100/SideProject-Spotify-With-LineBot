@@ -9,7 +9,11 @@ import { WebhookRequestBody, MessageEvent, PostbackEvent } from "@line/bot-sdk";
 import _get from "lodash/get";
 import processUtils from "../utils/processUtils";
 import lineUtils from "../utils/lineUtils";
-import { filterSearchType, actionCommands } from "../utils/lineType";
+import {
+  filterSearchType,
+  actionCommands,
+  footerActionType,
+} from "../utils/lineType";
 import _isEqual from "lodash/isEqual";
 import {
   routeLink,
@@ -178,12 +182,14 @@ const handleTextEventMessage = async (text: string, replyToken: string) => {
           return lineUtils.generateFlexbox(item);
         }
       );
-      message.contents.footer.contents = lineUtils.generateFooter({
+      const footerData = {
         nextUrl,
         limit,
         offset,
-      }) as any;
-
+      } as footerActionType;
+      message.contents.footer.contents = [
+        lineUtils.generateFooter(footerData),
+      ] as never[];
       await lineUtils.replayMessage(replyToken, message);
       return message;
     } catch (error) {

@@ -58,6 +58,7 @@ const utils = {
           type: "box",
           layout: "vertical",
           contents: [],
+          spacing: "none",
         },
         footer: {
           type: "box",
