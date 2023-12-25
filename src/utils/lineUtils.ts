@@ -1,4 +1,8 @@
-import { filterSearchType, actionCommands } from "../utils/lineType";
+import {
+  filterSearchType,
+  footerActionType,
+  actionCommands,
+} from "../utils/lineType";
 const LINE_HEADER = {
   "Content-Type": "application/json",
   Authorization: "Bearer " + process.env.LINE_CHANNEL_ACCESS_TOEKN,
@@ -19,7 +23,7 @@ const utils = {
       console.error(`Delivery to LINE failed (${error})`);
     }
   },
-  generateMessageTemplate: async () => {
+  generateMessageTemplate: () => {
     const message = {
       type: "flex",
       altText: "Your Spotify search result",
@@ -54,6 +58,11 @@ const utils = {
         body: {
           type: "box",
           layout: "vertical",
+          contents: [],
+        },
+        footer: {
+          type: "box",
+          layout: "horizontal",
           contents: [],
         },
         styles: {
@@ -158,6 +167,53 @@ const utils = {
       cornerRadius: "5px",
     };
   },
+  generateFooter: (data: footerActionType) => {
+    return {
+      type: "box",
+      layout: "horizontal",
+      contents: [
+        {
+          type: "box",
+          layout: "vertical",
+          contents: [
+            {
+              type: "button",
+              action: utils.generatePostbackButton("上一頁", {
+                action: actionCommands.PERVIOUS_PAGE,
+                uri: data.nextUrl,
+              }),
+              style: "primary",
+              gravity: "bottom",
+              color: "#1DB954",
+            },
+          ],
+          spacing: "none",
+          width: "30%",
+        },
+        {
+          type: "box",
+          layout: "vertical",
+          contents: [
+            {
+              type: "button",
+              action: utils.generatePostbackButton("下一頁", {
+                action: actionCommands.NEXT_PAGE,
+                uri: data.nextUrl,
+              }),
+              style: "primary",
+              gravity: "bottom",
+              color: "#1DB954",
+            },
+          ],
+          spacing: "none",
+          width: "30%",
+        },
+      ],
+      backgroundColor: "#191414",
+      spacing: "xl",
+      cornerRadius: "5px",
+    };
+  },
   /**
    * 產生postback button
    * @param title
@@ -177,7 +233,10 @@ const utils = {
    * }
    * 要轉換成action=actionCommands.ADD_TRACK&uri=data.uri
    */
-  generatePostbackButton: (title: string, payload: any) => {
+  generatePostbackButton: (
+    title: string,
+    payload: any
+  ): { [key: string]: string } => {
     return {
       type: "postback",
       label: title,

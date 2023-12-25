@@ -17,6 +17,7 @@ import {
   userLink,
   playlistLink,
 } from "../utils/routeLink";
+import httpUtils from "../utils/httpUtils";
 
 type WebhookRequest = FastifyRequest<{
   Body: WebhookRequestBody;
@@ -110,11 +111,11 @@ const handlePostbackEvent = async (postbackEvent: PostbackEvent) => {
   }
 
   const action = dataParams["action"];
-  const uri = dataParams["uri"];
-  const position = dataParams["position"];
   // 根據action決定要去做什麼事情
   switch (action) {
     case actionCommands.ADD_TRACK:
+      const uri = dataParams["uri"];
+      const position = dataParams["position"];
       const searchResponse = await fetch(
         `${process.env.BASE_URL}${routeLink.playlist}${playlistLink.add}?uri=${uri}&position=${position}`
       );
@@ -124,6 +125,31 @@ const handlePostbackEvent = async (postbackEvent: PostbackEvent) => {
           text: "已加入歌單",
         });
       }
+      break;
+    case actionCommands.NEXT_PAGE:
+      const next = dataParams["next"];
+      const spotifyResponse = await httpUtils.httpFetchGetWithToken({
+        url: next,
+      });
+      if (_isEqual(spotifyResponse.status, 200)) {
+        const searchData = await spotifyResponse.json();
+        const { result, nextUrl, limit, offset, total } =
+          processUtils.filterSearch(searchData);
+
+        try {
+          const message = lineUtils.generateMessageTemplate();
+          message.contents.body.contents = await result.map(
+            (item: filterSearchType) => {
+              return lineUtils.generateFlexbox(item);
+            }
+          );
+          await lineUtils.replayMessage(replyToken, message);
+          return message;
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      break;
     default:
       break;
   }
@@ -146,12 +172,18 @@ const handleTextEventMessage = async (text: string, replyToken: string) => {
       processUtils.filterSearch(searchData);
 
     try {
-      const message = await lineUtils.generateMessageTemplate();
+      const message = lineUtils.generateMessageTemplate();
       message.contents.body.contents = await result.map(
         (item: filterSearchType) => {
           return lineUtils.generateFlexbox(item);
         }
       );
+      message.contents.footer.contents = lineUtils.generateFooter({
+        nextUrl,
+        limit,
+        offset,
+      }) as any;
+
       await lineUtils.replayMessage(replyToken, message);
       return message;
     } catch (error) {
