@@ -35,7 +35,6 @@ const playlist = (
       const userId = await mongoDbUtils.getUserId();
       const spotifyResponse = await httpUtils.httpFetchGetWithToken({
         url: `https://api.spotify.com/v1/users/${userId}/playlists?${Params.toString()}`,
-        fastify,
       });
     }
   );
@@ -61,7 +60,6 @@ const playlist = (
       const spotifyResponse = await httpUtils.httpFetchPostWithToken({
         url: `https://api.spotify.com/v1/playlists/${playlist_id}/tracks`,
         body: JSON.stringify(Params),
-        fastify,
       });
       await processUtils.processResponseAndReturn(spotifyResponse, reply);
     }

@@ -9,18 +9,10 @@ interface HttpFetchPostProps {
   body?: any;
 }
 
-interface HttpFetchPostPropsWithToken extends HttpFetchPostProps {
-  fastify: any;
-}
-
 interface HttpFetchGetProps {
   url: string;
   headers?: any;
   body?: any;
-}
-
-interface HttpFetchGetPropsWithToken extends HttpFetchGetProps {
-  fastify: any;
 }
 
 const refreshLink = `${process.env.BASE_URL}${routeLink.spotify}${authLink.refresh}`;
@@ -31,8 +23,8 @@ const utils = {
    * @param props
    * @returns
    */
-  httpFetchPostWithToken: async (props: HttpFetchPostPropsWithToken) => {
-    const { url, headers = {}, body = {}, fastify } = props;
+  httpFetchPostWithToken: async (props: HttpFetchPostProps) => {
+    const { url, headers = {}, body = {} } = props;
     const { access_token } = await mongoDbUtils.getTokens();
     const spotifyResponse = await fetch(url, {
       method: "POST",
@@ -85,8 +77,8 @@ const utils = {
    * @param props
    * @returns
    */
-  httpFetchGetWithToken: async (props: HttpFetchGetPropsWithToken) => {
-    const { url, headers = {}, fastify } = props;
+  httpFetchGetWithToken: async (props: HttpFetchGetProps) => {
+    const { url, headers = {} } = props;
     const { access_token } = await mongoDbUtils.getTokens();
     const spotifyResponse = await fetch(url, {
       method: "GET",

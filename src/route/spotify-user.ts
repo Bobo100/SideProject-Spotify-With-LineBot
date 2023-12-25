@@ -22,7 +22,6 @@ const user = (
     async (request: FastifyRequest, reply: FastifyReply) => {
       const spotifyResponse = await httpUtils.httpFetchGetWithToken({
         url: "https://api.spotify.com/v1/me",
-        fastify,
       });
       const errorStatus = _get(spotifyResponse, "error.status");
       if (errorStatus) {

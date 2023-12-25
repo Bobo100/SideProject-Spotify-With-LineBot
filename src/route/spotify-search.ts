@@ -42,7 +42,6 @@ const search = (
         Params.append("offset", "0");
         const spotifyResponse = await httpUtils.httpFetchGetWithToken({
           url: "https://api.spotify.com/v1/search?" + Params.toString(),
-          fastify,
         });
         await processUtils.processResponseAndReturn(spotifyResponse, reply);
       } catch (error) {
