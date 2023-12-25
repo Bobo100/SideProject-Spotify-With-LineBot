@@ -11,7 +11,12 @@ import processUtils from "../utils/processUtils";
 import lineUtils from "../utils/lineUtils";
 import { filterSearchType, actionCommands } from "../utils/lineType";
 import _isEqual from "lodash/isEqual";
-import { routeLink } from "../utils/routeLink";
+import {
+  routeLink,
+  searchLink,
+  userLink,
+  playlistLink,
+} from "../utils/routeLink";
 
 type WebhookRequest = FastifyRequest<{
   Body: WebhookRequestBody;
@@ -29,6 +34,9 @@ const webhook = (
   opts: FastifyServerOptions,
   done: any
 ) => {
+  /**
+   * @api {post} /webhook 接收line的webhook
+   */
   fastify.post(
     routeLink.default,
     async (request: WebhookRequest, reply: FastifyReply) => {
@@ -68,6 +76,11 @@ const webhook = (
   done();
 };
 
+/**
+ * 處理message事件
+ * @param body
+ * @returns
+ */
 const handleMessageEvent = async (body: MessageEvent) => {
   const type = body.message.type;
   switch (type) {
@@ -79,6 +92,11 @@ const handleMessageEvent = async (body: MessageEvent) => {
   }
 };
 
+/**
+ * 處理postback事件
+ * @param postbackEvent
+ * @returns
+ */
 const handlePostbackEvent = async (postbackEvent: PostbackEvent) => {
   const { data, params = "" } = postbackEvent.postback;
   const replyToken = postbackEvent.replyToken;
@@ -98,7 +116,7 @@ const handlePostbackEvent = async (postbackEvent: PostbackEvent) => {
   switch (action) {
     case actionCommands.ADD_TRACK:
       const searchResponse = await fetch(
-        `${process.env.BASE_URL}/add?uri=${uri}&position=${position}`
+        `${process.env.BASE_URL}${routeLink.playlist}${playlistLink.add}?uri=${uri}&position=${position}`
       );
       if (_isEqual(searchResponse.status, 200)) {
         return await lineUtils.replayMessage(replyToken, {
@@ -111,6 +129,12 @@ const handlePostbackEvent = async (postbackEvent: PostbackEvent) => {
   }
 };
 
+/**
+ * 處理text事件
+ * @param text
+ * @param replyToken
+ * @returns
+ */
 const handleTextEventMessage = async (text: string, replyToken: string) => {
   const encodedKeyword = encodeURIComponent(text);
   const searchResponse = await fetch(
@@ -136,10 +160,5 @@ const handleTextEventMessage = async (text: string, replyToken: string) => {
   }
   return null;
 };
-
-const handleTypePostback = async (
-  body: PostbackEvent,
-  fastify: FastifyInstance
-) => {};
 
 export default webhook;

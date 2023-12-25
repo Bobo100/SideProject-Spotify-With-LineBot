@@ -8,15 +8,17 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import cookie from "@fastify/cookie";
 import { FastifyCookieOptions } from "@fastify/cookie";
 import spotify from "../src/route/spotify";
-import spotifyCallback from "../src/route/spotify-callback";
-import webhook from "../src/route/webhook";
 import mongodb from "@fastify/mongodb";
+import { routeLink } from "../src/utils/routeLink";
+import webhook from "../src/route/webhook";
+import search from "../src/route/spotify-search";
+import playlist from "../src/route/spotify-playlist";
+import user from "../src/route/spotify-user";
 
 // Instantiate Fastify with some config
 const app = Fastify({
   logger: true,
 });
-
 
 app.register(mongodb, {
   url: `mongodb+srv://${process.env.USER_NAME}:${process.env.MONGODB_PASSEWORD}@cluster0.yjz075d.mongodb.net/${process.env.DATABASE_NAME}?retryWrites=true&w=majority`,
@@ -27,13 +29,12 @@ app.register(cookie, {
   parseOptions: {}, // options for parsing cookies
 } as FastifyCookieOptions);
 
-app.register(spotify, {
-  prefix: "/",
-});
+app.register(spotify, { prefix: routeLink.spotify });
+app.register(user, { prefix: routeLink.user });
+app.register(search, { prefix: routeLink.search });
+app.register(playlist, { prefix: routeLink.playlist });
 
-app.register(spotifyCallback, { prefix: "/api/spotify-callback" });
-
-app.register(webhook, { prefix: "/webhook" });
+app.register(webhook, { prefix: routeLink.webhook });
 
 app.listen({ port: 3000 }, (err, address) => {
   if (err) {
