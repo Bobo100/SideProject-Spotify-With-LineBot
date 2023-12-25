@@ -32,7 +32,7 @@ const playlist = (
       const Params = new URLSearchParams();
       Params.append("limit", "10");
       Params.append("offset", "0");
-      const userId = await mongoDbUtils.getUserId(fastify);
+      const userId = await mongoDbUtils.getUserId();
       const spotifyResponse = await httpUtils.httpFetchGetWithToken({
         url: `https://api.spotify.com/v1/users/${userId}/playlists?${Params.toString()}`,
         fastify,

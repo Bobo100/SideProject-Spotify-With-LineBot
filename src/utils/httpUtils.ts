@@ -33,7 +33,7 @@ const utils = {
    */
   httpFetchPostWithToken: async (props: HttpFetchPostPropsWithToken) => {
     const { url, headers = {}, body = {}, fastify } = props;
-    const { access_token } = await mongoDbUtils.getTokens(fastify);
+    const { access_token } = await mongoDbUtils.getTokens();
     const spotifyResponse = await fetch(url, {
       method: "POST",
       headers: {
@@ -87,7 +87,7 @@ const utils = {
    */
   httpFetchGetWithToken: async (props: HttpFetchGetPropsWithToken) => {
     const { url, headers = {}, fastify } = props;
-    const { access_token } = await mongoDbUtils.getTokens(fastify);
+    const { access_token } = await mongoDbUtils.getTokens();
     const spotifyResponse = await fetch(url, {
       method: "GET",
       headers: {

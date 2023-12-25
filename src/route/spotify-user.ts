@@ -29,7 +29,7 @@ const user = (
         return;
       } else {
         const userId = _get(spotifyResponse, "id");
-        await mongoDbUtils.updateUserId(fastify, userId);
+        await mongoDbUtils.updateUserId(userId);
         return userId;
       }
     }

@@ -52,7 +52,7 @@ const spotify = (
   // refreshAccessToken
   fastify.get(authLink.refresh, async (request, reply) => {
     const clientId = process.env.SPOTIFY_CLIENT_ID;
-    const { refresh_token } = await mongoDbUtils.getTokens(fastify);
+    const { refresh_token } = await mongoDbUtils.getTokens();
     const Params = new URLSearchParams();
     Params.append("client_id", clientId!);
     Params.append("grant_type", "refresh_token");
@@ -65,7 +65,7 @@ const spotify = (
     const new_access_token = _get(spotifyResponse, "access_token");
     const new_refresh_token = _get(spotifyResponse, "refresh_token");
     if (new_access_token && new_refresh_token) {
-      await mongoDbUtils.updateTokens(fastify, {
+      await mongoDbUtils.updateTokens({
         access_token: new_access_token,
         refresh_token: new_refresh_token,
       });
@@ -98,7 +98,7 @@ const spotify = (
           });
           const { access_token, refresh_token } = result;
           if (access_token && refresh_token) {
-            await mongoDbUtils.updateTokens(fastify, {
+            await mongoDbUtils.updateTokens({
               access_token: access_token,
               refresh_token: refresh_token,
             });
@@ -115,7 +115,6 @@ const spotify = (
       }
     }
   );
-
   done();
 };
 

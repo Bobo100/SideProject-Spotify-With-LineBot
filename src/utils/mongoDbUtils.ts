@@ -1,8 +1,8 @@
-import { FastifyInstance } from "fastify";
 import _get from "lodash/get";
+import { app } from "../../api/serverless";
 const utils = {
-  getTokens: async (fastify: FastifyInstance) => {
-    const token = await fastify.mongo.db?.collection("token").findOne({});
+  getTokens: async () => {
+    const token = await app.mongo.db?.collection("token").findOne({});
     const access_token = _get(token, "access_token");
     const refresh_token = _get(token, "refresh_token");
     return {
@@ -10,8 +10,8 @@ const utils = {
       refresh_token,
     };
   },
-  updateTokens: async (fastify: FastifyInstance, tokens: any) => {
-    fastify.mongo.db?.collection("token").updateOne(
+  updateTokens: async (tokens: any) => {
+    app.mongo.db?.collection("token").updateOne(
       {},
       {
         $set: {
@@ -22,13 +22,13 @@ const utils = {
       { upsert: true }
     );
   },
-  getUserId: async (fastify: FastifyInstance) => {
-    const user = await fastify.mongo.db?.collection("user").findOne({});
+  getUserId: async () => {
+    const user = await app.mongo.db?.collection("user").findOne({});
     const userId = _get(user, "userId");
     return userId;
   },
-  updateUserId: async (fastify: FastifyInstance, userId: string) => {
-    fastify.mongo.db?.collection("user").updateOne(
+  updateUserId: async (userId: string) => {
+    app.mongo.db?.collection("user").updateOne(
       {},
       {
         $set: {
@@ -38,13 +38,13 @@ const utils = {
       { upsert: true }
     );
   },
-  getPlaylistId: async (fastify: FastifyInstance) => {
-    const playlist = await fastify.mongo.db?.collection("playlist").findOne({});
+  getPlaylistId: async () => {
+    const playlist = await app.mongo.db?.collection("playlist").findOne({});
     const playlistId = _get(playlist, "playlistId");
     return playlistId;
   },
-  updatePlaylistId: async (fastify: FastifyInstance, playlistId: string) => {
-    fastify.mongo.db?.collection("playlist").updateOne(
+  updatePlaylistId: async (playlistId: string) => {
+    app.mongo.db?.collection("playlist").updateOne(
       {},
       {
         $set: {

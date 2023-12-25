@@ -158,22 +158,26 @@ const utils = {
       cornerRadius: "5px",
     };
   },
+  /**
+   * 產生postback button
+   * @param title
+   * @param payload
+   * @returns
+   * {
+   *   "type": "postback",
+   *   "label": "Buy",
+   *   "data": "action=buy&itemid=111",
+   *   "displayText": "Buy",
+   *   "inputOption": "openKeyboard",
+   *   "fillInText": "---\nName: \nPhone: \nBirthday: \n---"
+   * }
+   * payload: {
+   *   action: actionCommands.ADD_TRACK,
+   *   uri: data.uri,
+   * }
+   * 要轉換成action=actionCommands.ADD_TRACK&uri=data.uri
+   */
   generatePostbackButton: (title: string, payload: any) => {
-    /*
-    {
-      "type": "postback",
-      "label": "Buy",
-      "data": "action=buy&itemid=111",
-      "displayText": "Buy",
-      "inputOption": "openKeyboard",
-      "fillInText": "---\nName: \nPhone: \nBirthday: \n---"
-    }
-    payload: {
-      action: actionCommands.ADD_TRACK,
-      uri: data.uri,
-    }         
-    // 要轉換成action=actionCommands.ADD_TRACK&uri=data.uri
-    */
     return {
       type: "postback",
       label: title,
