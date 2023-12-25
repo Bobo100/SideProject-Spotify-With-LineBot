@@ -72,6 +72,9 @@ const utils = {
           body: {
             backgroundColor: "#191414",
           },
+          footer: {
+            backgroundColor: "#191414",
+          },
         },
       },
     };
@@ -130,7 +133,7 @@ const utils = {
           contents: [
             {
               type: "button",
-              action: utils.generatePostbackButton("INSERT", {
+              action: utils.generateAddTrackPostbackButton("INSERT", {
                 action: actionCommands.ADD_TRACK,
                 uri: data.uri,
                 position: "0",
@@ -153,7 +156,7 @@ const utils = {
           contents: [
             {
               type: "button",
-              action: utils.generatePostbackButton("APPEND", {
+              action: utils.generateAddTrackPostbackButton("APPEND", {
                 action: actionCommands.ADD_TRACK,
                 uri: data.uri,
                 position: null,
@@ -187,9 +190,9 @@ const utils = {
           contents: [
             {
               type: "button",
-              action: utils.generatePostbackButton("上一頁", {
+              action: utils.generateNextPagePostbackButton("上一頁", {
                 action: actionCommands.PERVIOUS_PAGE,
-                uri: data.nextUrl,
+                next: data.nextUrl,
               }),
               style: "primary",
               gravity: "bottom",
@@ -206,9 +209,9 @@ const utils = {
           contents: [
             {
               type: "button",
-              action: utils.generatePostbackButton("下一頁", {
+              action: utils.generateNextPagePostbackButton("下一頁", {
                 action: actionCommands.NEXT_PAGE,
-                uri: data.nextUrl,
+                next: data.nextUrl,
               }),
               style: "primary",
               gravity: "bottom",
@@ -243,7 +246,7 @@ const utils = {
    * }
    * 要轉換成action=actionCommands.ADD_TRACK&uri=data.uri
    */
-  generatePostbackButton: (
+  generateAddTrackPostbackButton: (
     title: string,
     payload: any
   ): { [key: string]: string } => {
@@ -251,6 +254,16 @@ const utils = {
       type: "postback",
       label: title,
       data: `action=${payload.action}&uri=${payload.uri}&position=${payload.position}`,
+    };
+  },
+  generateNextPagePostbackButton: (
+    title: string,
+    payload: any
+  ): { [key: string]: string } => {
+    return {
+      type: "postback",
+      label: title,
+      data: `next=${payload.next}`,
     };
   },
 };
