@@ -160,6 +160,11 @@ const handlePostbackEvent = async (postbackEvent: PostbackEvent) => {
         } catch (error) {
           console.log(error);
         }
+      } else {
+        await lineUtils.replayMessage(replyToken, {
+          type: "text",
+          text: dataParams,
+        });
       }
       break;
     default:
