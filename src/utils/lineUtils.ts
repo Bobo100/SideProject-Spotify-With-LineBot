@@ -263,7 +263,7 @@ const utils = {
     return {
       type: "postback",
       label: title,
-      data: `next=${payload.next}`,
+      data: `action=${payload.action}&next=${payload.next}`,
     };
   },
 };
