@@ -147,6 +147,14 @@ const handlePostbackEvent = async (postbackEvent: PostbackEvent) => {
               return lineUtils.generateFlexbox(item);
             }
           );
+          const footerData = {
+            nextUrl,
+            limit,
+            offset,
+          } as footerActionType;
+          message.contents.footer.contents = [
+            lineUtils.generateFooter(footerData),
+          ] as never[];
           await lineUtils.replayMessage(replyToken, message);
           return message;
         } catch (error) {
