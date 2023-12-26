@@ -188,16 +188,17 @@ const utils = {
       spacing: "xl",
       cornerRadius: "5px",
     };
-    if (data.prevUrl) {
+
+    const addButton = (label: string, action: string, next: string) => {
       template.contents.push({
         type: "box",
         layout: "vertical",
         contents: [
           {
             type: "button",
-            action: utils.generateNextPagePostbackButton("上一頁", {
-              action: actionCommands.PERVIOUS_PAGE,
-              next: data.prevUrl,
+            action: utils.generateNextPagePostbackButton(label, {
+              action: action,
+              next: next,
             }),
             style: "primary",
             gravity: "bottom",
@@ -208,26 +209,14 @@ const utils = {
         spacing: "none",
         justifyContent: "center",
       } as never);
+    };
+
+    if (data.prevUrl) {
+      addButton("上一頁", actionCommands.PERVIOUS_PAGE, data.prevUrl);
     }
+
     if (data.nextUrl) {
-      template.contents.push({
-        type: "box",
-        layout: "vertical",
-        contents: [
-          {
-            type: "button",
-            action: utils.generateNextPagePostbackButton("下一頁", {
-              action: actionCommands.NEXT_PAGE,
-              next: data.nextUrl,
-            }),
-            style: "primary",
-            gravity: "bottom",
-            color: "#1DB954",
-            height: "sm",
-          },
-        ],
-        spacing: "none",
-      } as never);
+      addButton("下一頁", actionCommands.NEXT_PAGE, data.nextUrl);
     }
     return template;
   },
