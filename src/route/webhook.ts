@@ -125,15 +125,24 @@ const handlePostbackEvent = async (postbackEvent: PostbackEvent) => {
       break;
     case actionCommands.NEXT_PAGE:
       const next = searchParams.get("next") as string;
+      const type = searchParams.get("type") as string;
+      const market = searchParams.get("market") as string;
+      const limit = searchParams.get("limit") as string;
+      const offset = searchParams.get("offset") as string;
+      // type market locale offset limit 都需要帶上
       const decodedNext = decodeURIComponent(next);
       const spotifyResponse = await httpUtils.httpFetchGetWithToken({
-        url: decodedNext,
+        url:
+          next +
+          `&type=${type}&market=${market}&limit=${limit}&offset=${offset}`,
       });
       const errorStatus = _get(spotifyResponse, "error.status");
       if (errorStatus) {
         return await lineUtils.replayMessage(replyToken, {
           type: "text",
-          text: `postback${searchParams} 連結${decodedNext} 錯誤內容${JSON.stringify(spotifyResponse)}`,
+          text: `postback${searchParams} 連結${decodedNext} 錯誤內容${JSON.stringify(
+            spotifyResponse
+          )}`,
         });
       } else {
         const { result, nextUrl, limit, offset, total } =
