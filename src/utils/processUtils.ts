@@ -10,12 +10,14 @@ const utils = {
         uri: item.uri,
       };
     });
+    const prevUrl = data.tracks.previous;
     const nextUrl = data.tracks.next;
     const limit = data.tracks.limit;
     const offset = data.tracks.offset;
     const total = data.tracks.total;
     return {
       result,
+      prevUrl,
       nextUrl,
       limit,
       offset,

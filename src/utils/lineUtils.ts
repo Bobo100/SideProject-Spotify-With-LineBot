@@ -180,52 +180,56 @@ const utils = {
     };
   },
   generateFooter: (data: footerActionType) => {
-    return {
+    const template = {
       type: "box",
       layout: "horizontal",
-      contents: [
-        {
-          type: "box",
-          layout: "vertical",
-          contents: [
-            {
-              type: "button",
-              action: utils.generateNextPagePostbackButton("上一頁", {
-                action: actionCommands.PERVIOUS_PAGE,
-                next: data.nextUrl,
-              }),
-              style: "primary",
-              gravity: "bottom",
-              color: "#1DB954",
-              height: "sm",
-            },
-          ],
-          spacing: "none",
-          justifyContent: "center",
-        },
-        {
-          type: "box",
-          layout: "vertical",
-          contents: [
-            {
-              type: "button",
-              action: utils.generateNextPagePostbackButton("下一頁", {
-                action: actionCommands.NEXT_PAGE,
-                next: data.nextUrl,
-              }),
-              style: "primary",
-              gravity: "bottom",
-              color: "#1DB954",
-              height: "sm",
-            },
-          ],
-          spacing: "none",
-        },
-      ],
+      contents: [],
       backgroundColor: "#191414",
       spacing: "xl",
       cornerRadius: "5px",
     };
+    if (data.prevUrl) {
+      template.contents.push({
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "button",
+            action: utils.generateNextPagePostbackButton("上一頁", {
+              action: actionCommands.PERVIOUS_PAGE,
+              next: data.prevUrl,
+            }),
+            style: "primary",
+            gravity: "bottom",
+            color: "#1DB954",
+            height: "sm",
+          },
+        ],
+        spacing: "none",
+        justifyContent: "center",
+      } as never);
+    }
+    if (data.nextUrl) {
+      template.contents.push({
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "button",
+            action: utils.generateNextPagePostbackButton("下一頁", {
+              action: actionCommands.NEXT_PAGE,
+              next: data.nextUrl,
+            }),
+            style: "primary",
+            gravity: "bottom",
+            color: "#1DB954",
+            height: "sm",
+          },
+        ],
+        spacing: "none",
+      } as never);
+    }
+    return;
   },
   /**
    * 產生postback button

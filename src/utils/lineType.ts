@@ -6,6 +6,7 @@ export type filterSearchType = {
 };
 
 export type footerActionType = {
+  prevUrl: string;
   nextUrl: string;
   limit: number;
   offset: number;

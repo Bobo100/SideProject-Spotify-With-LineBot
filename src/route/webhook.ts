@@ -107,12 +107,11 @@ const handlePostbackEvent = async (postbackEvent: PostbackEvent) => {
   const replyToken = postbackEvent.replyToken;
 
   const searchParams = new URLSearchParams(data);
-  const action = searchParams.get("action");
+  const { action, uri, position, next, type, market, limit, offset } =
+    Object.fromEntries(searchParams.entries());
   // 根據action決定要去做什麼事情
   switch (action) {
     case actionCommands.ADD_TRACK:
-      const uri = searchParams.get("uri");
-      const position = searchParams.get("position");
       const searchResponse = await fetch(
         `${process.env.BASE_URL}${routeLink.playlist}${playlistLink.add}?uri=${uri}&position=${position}`
       );
@@ -124,12 +123,7 @@ const handlePostbackEvent = async (postbackEvent: PostbackEvent) => {
       }
       break;
     case actionCommands.NEXT_PAGE:
-      const next = searchParams.get("next") as string;
-      const type = searchParams.get("type") as string;
-      const market = searchParams.get("market") as string;
-      const limit = searchParams.get("limit") as string;
-      const offset = searchParams.get("offset") as string;
-      // type market locale offset limit 都需要帶上
+    case actionCommands.PERVIOUS_PAGE:
       const decodedNext = decodeURIComponent(next);
       const spotifyResponse = await httpUtils.httpFetchGetWithToken({
         url:
@@ -145,7 +139,7 @@ const handlePostbackEvent = async (postbackEvent: PostbackEvent) => {
           )}`,
         });
       } else {
-        const { result, nextUrl, limit, offset, total } =
+        const { result, prevUrl, nextUrl, limit, offset, total } =
           processUtils.filterSearch(spotifyResponse);
         const message = lineUtils.generateMessageTemplate();
         message.contents.body.contents = await result.map(
@@ -154,6 +148,7 @@ const handlePostbackEvent = async (postbackEvent: PostbackEvent) => {
           }
         );
         const footerData = {
+          prevUrl: prevUrl,
           nextUrl: nextUrl,
           limit: limit,
           offset: offset,
@@ -182,7 +177,7 @@ const handleTextEventMessage = async (text: string, replyToken: string) => {
   );
   if (_isEqual(searchResponse.status, 200)) {
     const searchData = await searchResponse.json();
-    const { result, nextUrl, limit, offset, total } =
+    const { result, prevUrl, nextUrl, limit, offset, total } =
       processUtils.filterSearch(searchData);
 
     try {
@@ -193,6 +188,7 @@ const handleTextEventMessage = async (text: string, replyToken: string) => {
         }
       );
       const footerData = {
+        prevUrl,
         nextUrl,
         limit,
         offset,
