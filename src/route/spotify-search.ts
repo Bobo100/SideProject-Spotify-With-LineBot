@@ -31,7 +31,7 @@ const search = (
       try {
         const keyWord = request.query.keyWord;
         const Params = new URLSearchParams();
-        Params.append("q", keyWord!);
+        Params.append("query", keyWord!);
         // 可帶複數的type，但我想先不用
         Params.append("type", "track");
         // 限定台灣
