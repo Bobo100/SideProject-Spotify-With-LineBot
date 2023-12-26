@@ -132,7 +132,7 @@ const handlePostbackEvent = async (postbackEvent: PostbackEvent) => {
       if (errorStatus) {
         return await lineUtils.replayMessage(replyToken, {
           type: "text",
-          text: "發生錯誤",
+          text: `連結${next} 錯誤內容${JSON.stringify(spotifyResponse)}`,
         });
       } else {
         const { result, nextUrl, limit, offset, total } =
