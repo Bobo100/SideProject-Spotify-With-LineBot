@@ -105,21 +105,14 @@ const handleMessageEvent = async (body: MessageEvent) => {
 const handlePostbackEvent = async (postbackEvent: PostbackEvent) => {
   const { data, params = "" } = postbackEvent.postback;
   const replyToken = postbackEvent.replyToken;
-  const keyValuePairs = data.split("&");
 
-  const dataParams: { [key: string]: string } = {};
-
-  for (const pair of keyValuePairs) {
-    const [key, value] = pair.split("=");
-    dataParams[key] = value;
-  }
-
-  const action = dataParams["action"];
+  const searchParams = new URLSearchParams(data);
+  const action = searchParams.get("action");
   // 根據action決定要去做什麼事情
   switch (action) {
     case actionCommands.ADD_TRACK:
-      const uri = dataParams["uri"];
-      const position = dataParams["position"];
+      const uri = searchParams.get("uri");
+      const position = searchParams.get("position");
       const searchResponse = await fetch(
         `${process.env.BASE_URL}${routeLink.playlist}${playlistLink.add}?uri=${uri}&position=${position}`
       );
@@ -131,7 +124,7 @@ const handlePostbackEvent = async (postbackEvent: PostbackEvent) => {
       }
       break;
     case actionCommands.NEXT_PAGE:
-      const next = dataParams["next"];
+      const next = searchParams.get("next") as string;
       const spotifyResponse = await httpUtils.httpFetchGetWithToken({
         url: next,
       });
@@ -148,9 +141,9 @@ const handlePostbackEvent = async (postbackEvent: PostbackEvent) => {
             }
           );
           const footerData = {
-            nextUrl,
-            limit,
-            offset,
+            nextUrl: nextUrl,
+            limit: limit,
+            offset: offset,
           } as footerActionType;
           message.contents.footer.contents = [
             lineUtils.generateFooter(footerData),
@@ -160,11 +153,6 @@ const handlePostbackEvent = async (postbackEvent: PostbackEvent) => {
         } catch (error) {
           console.log(error);
         }
-      } else {
-        await lineUtils.replayMessage(replyToken, {
-          type: "text",
-          text: dataParams,
-        });
       }
       break;
     default:
