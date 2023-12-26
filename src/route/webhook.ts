@@ -128,33 +128,32 @@ const handlePostbackEvent = async (postbackEvent: PostbackEvent) => {
       const spotifyResponse = await httpUtils.httpFetchGetWithToken({
         url: next,
       });
-      if (_isEqual(spotifyResponse.status, 200)) {
-        const searchData = await spotifyResponse.json();
+      const errorStatus = _get(spotifyResponse, "error.status");
+      if (errorStatus) {
+        return await lineUtils.replayMessage(replyToken, {
+          type: "text",
+          text: "發生錯誤",
+        });
+      } else {
         const { result, nextUrl, limit, offset, total } =
-          processUtils.filterSearch(searchData);
-
-        try {
-          const message = lineUtils.generateMessageTemplate();
-          message.contents.body.contents = await result.map(
-            (item: filterSearchType) => {
-              return lineUtils.generateFlexbox(item);
-            }
-          );
-          const footerData = {
-            nextUrl: nextUrl,
-            limit: limit,
-            offset: offset,
-          } as footerActionType;
-          message.contents.footer.contents = [
-            lineUtils.generateFooter(footerData),
-          ] as never[];
-          await lineUtils.replayMessage(replyToken, message);
-          return message;
-        } catch (error) {
-          console.log(error);
-        }
+          processUtils.filterSearch(spotifyResponse);
+        const message = lineUtils.generateMessageTemplate();
+        message.contents.body.contents = await result.map(
+          (item: filterSearchType) => {
+            return lineUtils.generateFlexbox(item);
+          }
+        );
+        const footerData = {
+          nextUrl: nextUrl,
+          limit: limit,
+          offset: offset,
+        } as footerActionType;
+        message.contents.footer.contents = [
+          lineUtils.generateFooter(footerData),
+        ] as never[];
+        await lineUtils.replayMessage(replyToken, message);
+        return message;
       }
-      break;
     default:
       break;
   }
