@@ -78,6 +78,14 @@ const webhook = (
     }
   );
 
+  /**
+   * 處理 GET 請求
+   */
+  fastify.get(routeLink.default, async (request, reply) => {
+    console.log("Received GET request at /webhook");
+    return reply.status(200).send("Webhook GET route is active");
+  });
+
   done();
 };
 
