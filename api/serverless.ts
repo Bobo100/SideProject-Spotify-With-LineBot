@@ -21,7 +21,7 @@ const app = Fastify({
 });
 
 app.register(mongodb, {
-  url: `mongodb+srv://${process.env.USER_NAME}:${process.env.MONGODB_PASSEWORD}@cluster0.yjz075d.mongodb.net/${process.env.DATABASE_NAME}?retryWrites=true&w=majority`,
+  url: `mongodb+srv://${process.env.USER_NAME}:${process.env.MONGODB_PASSEWORD}@cluster0.yjz075d.mongodb.net/${process.env.DATABASE_NAME}?retryWrites=true&w=majority&appName=Cluster0`,
 });
 
 app.register(cookie, {
