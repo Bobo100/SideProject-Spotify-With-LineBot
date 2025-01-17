@@ -46,14 +46,27 @@ const webhook = (
     routeLink.default,
     async (request: WebhookRequest, reply: FastifyReply) => {
       const r = JSON.stringify(request.body);
+      // const signature = crypto
+      //   .createHmac("SHA256", process.env.LINE_CHANNEL_SECRET!)
+      //   .update(r || "")
+      //   .digest("base64")
+      //   .toString();
+      // if (signature !== request.headers["x-line-signature"]) {
+      //   return reply.status(401).send("Unauthorized");
+      // }
+
+      // Generate HMAC signature
       const signature = crypto
         .createHmac("SHA256", process.env.LINE_CHANNEL_SECRET!)
-        .update(r || "")
-        .digest("base64")
-        .toString();
-      if (signature !== request.headers["x-line-signature"]) {
+        .update(r)
+        .digest("base64");
+
+      // Verify the signature
+      const receivedSignature = request.headers["x-line-signature"];
+      if (!receivedSignature || signature !== receivedSignature) {
         return reply.status(401).send("Unauthorized");
       }
+
       // TODO: 要拆分出message 和 postback
       // 因為我們會回給user flex message
       // 用戶點選flex message的按鈕
